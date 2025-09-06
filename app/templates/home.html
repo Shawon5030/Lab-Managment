@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        /* Global Styles */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            --secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            --card-gradient: linear-gradient(to bottom, #ffffff, #f8fafc);
+            --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.2);
+            --hover-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Background decorative elements */
+        .bg-blob {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: linear-gradient(to right, rgba(37, 99, 235, 0.1), rgba(30, 64, 175, 0.1));
+            filter: blur(50px);
+            z-index: -1;
+            animation: float 15s infinite ease-in-out;
+        }
+        
+        .bg-blob:nth-child(1) {
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+        
+        .bg-blob:nth-child(2) {
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Header Styles */
+        header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+        
+        .logo span {
+            color: #93c5fd;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+        
+        nav ul li {
+            margin-left: 1.8rem;
+            position: relative;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        nav ul li a:hover {
+            color: #93c5fd;
+        }
+        
+        .cart-icon {
+            position: relative;
+            font-size: 1.4rem;
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: var(--secondary-gradient);
+            color: white;
+            padding: 3.5rem 0;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='0.1' d='M0,128L48,117.3C96,107,192,85,288,112C384,139,480,213,576,218.7C672,224,768,160,864,138.7C960,117,1056,139,1152,149.3C1248,160,1344,160,1392,160L1440,160L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .hero p {
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0.95;
+        }
+        
+        /* Search and Filter */
+        .search-filter {
+            background: linear-gradient(to right, #ffffff, #f8fafc);
+            padding: 1.8rem;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .search-filter:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-3px);
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            margin-right: 1.2rem;
+            margin-bottom: 1.2rem;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-select {
+            margin-left: 1.2rem;
+            margin-bottom: 1.2rem;
+        }
+        
+        .filter-select select {
+            padding: 0.9rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-select select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        
+        /* Labs Grid */
+        .labs-section {
+            margin-bottom: 3.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.7rem;
+            margin-bottom: 1.8rem;
+            color: #1e293b;
+            padding-bottom: 0.7rem;
+            border-bottom: 3px solid #3b82f6;
+            display: inline-block;
+            font-weight: 600;
+        }
+        
+        .labs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        
+        .lab-card {
+            background: var(--card-gradient);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            border: 1px solid #f1f5f9;
+            position: relative;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .lab-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .lab-image {
+            height: 180px;
+            background: linear-gradient(45deg, #3b82f6, #60a5fa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lab-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.5s ease;
+        }
+        
+        .lab-card:hover .lab-image img {
+            transform: scale(1.05);
+        }
+        
+        .lab-image::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: linear-gradient(to top, rgba(0,0,0,0.1), transparent);
+        }
+        
+        .lab-info {
+            padding: 1.8rem;
+        }
+        
+        .lab-info h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.7rem;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        
+        .lab-info p {
+            color: #64748b;
+            margin-bottom: 1.2rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .lab-status {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+        }
+        
+        .status-available {
+            background-color: #dcfce7;
+            color: #16a34a;
+        }
+        
+        .status-busy {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .status-maintenance {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+        
+        .lab-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.2rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid #f1f5f9;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .detail-item i {
+            margin-right: 0.5rem;
+            color: #3b82f6;
+        }
+        
+        .lab-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+        
+        .view-lab-btn {
+            flex: 2;
+            padding: 0.8rem;
+            background: var(--secondary-gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            text-decoration: none;
+            margin-right: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .view-lab-btn:hover {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        .cart-btn {
+            flex: 1;
+            padding: 0.8rem;
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .cart-btn:hover {
+            background-color: #e2e8f0;
+            color: #334155;
+        }
+        
+        .cart-btn.added {
+            background-color: #dcfce7;
+            color: #16a34a;
+            border-color: #bbf7d0;
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #cbd5e1;
+            padding: 3rem 0 1.5rem;
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        
+        .footer-section {
+            flex: 1;
+            min-width: 220px;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-section h3 {
+            margin-bottom: 1.2rem;
+            font-size: 1.3rem;
+            color: #f8fafc;
+        }
+        
+        .footer-section p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 0.7rem;
+        }
+        
+        .footer-section ul li a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .footer-section ul li a i {
+            margin-right: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .footer-section ul li a:hover {
+            color: #93c5fd;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #334155;
+            margin-top: 2rem;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        
+        /* Cart Modal */
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 350px;
+            height: 90%;
+            background-color: white;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.4s ease;
+        }
+        
+        .cart-modal.open {
+            transform: translateX(0);
+        }
+        
+        .cart-header {
+            padding: 1.5rem;
+            background: var(--secondary-gradient);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .cart-header h3 {
+            margin: 0;
+            font-size: 1.4rem;
+        }
+        
+        .close-cart {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .cart-items {
+            padding: 1.5rem;
+        }
+        
+        .cart-item {
+            display: flex;
+            margin-bottom: 1.2rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 1px solid #e2e8f0;
+            animation: slideInRight 0.3s ease;
+        }
+        
+        .cart-item-image {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(45deg, #3b82f6, #60a5fa);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            margin-right: 1rem;
+        }
+        
+        .cart-item-details {
+            flex: 1;
+        }
+        
+        .cart-item-details h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            color: #1e293b;
+        }
+        
+        .cart-item-details p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .cart-item-remove {
+            color: #ef4444;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: transform 0.2s;
+        }
+        
+        .cart-item-remove:hover {
+            transform: scale(1.2);
+        }
+        
+        .cart-total {
+            padding: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .cart-checkout {
+            padding: 0 1.5rem 1.5rem;
+        }
+        
+        .checkout-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--success-gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .checkout-btn:hover {
+            background: linear-gradient(to right, #059669, #047857);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        .cart-empty {
+            padding: 2rem;
+            text-align: center;
+            color: #64748b;
+        }
+        
+        .cart-empty i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast i {
+            margin-right: 0.7rem;
+            font-size: 1.2rem;
+        }
+        
+        /* Alert styling */
+        .alert {
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .labs-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 1.2rem;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            nav ul li {
+                margin: 0.5rem 0.8rem;
+            }
+            
+            .search-filter {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                margin-right: 0;
+                margin-bottom: 1.2rem;
+            }
+            
+            .filter-options {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .filter-select {
+                margin-left: 0;
+                flex: 1;
+                margin-right: 0.5rem;
+            }
+            
+            .hero h1 {
+                font-size: 2.3rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .labs-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-options {
+                flex-direction: column;
+            }
+            
+            .filter-select {
+                margin-right: 0;
+                margin-bottom: 0.8rem;
+                width: 100%;
+            }
+            
+            .hero {
+                padding: 2.5rem 0;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .lab-actions {
+                flex-direction: column;
+            }
+            
+            .view-lab-btn {
+                margin-right: 0;
+                margin-bottom: 0.8rem;
+            }
+            
+            .cart-modal {
+                width: 100%;
+            }
+        }
+        
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        /* Staggered animations for lab cards */
+        .lab-card:nth-child(1) { animation-delay: 0.1s; }
+        .lab-card:nth-child(2) { animation-delay: 0.2s; }
+        .lab-card:nth-child(3) { animation-delay: 0.3s; }
+        .lab-card:nth-child(4) { animation-delay: 0.4s; }
+        .lab-card:nth-child(5) { animation-delay: 0.5s; }
+        .lab-card:nth-child(6) { animation-delay: 0.6s; }
+        
+        /* Loading animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background decorative elements -->
+    <div class="bg-blob"></div>
+    <div class="bg-blob"></div>
+
+    {% include "navbar.html" %}
+
+    <!-- Hero Section -->
+    <section class="hero animate__animated animate__fadeIn">
+        <div class="container hero-content">
+            <h1>Advanced Laboratory Management System</h1>
+            <p>Streamline your laboratory operations with our comprehensive management solution for equipment, schedules, and resources</p>
+        </div>
+    </section>
+
+    {% if messages %}
+        <div class="container">
+            {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible fade show animate__animated animate__shakeX" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="container">
+        <!-- Search and Filter Section -->
+        <div class="search-filter animate__animated animate__fadeInUp">
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" id="labSearch" placeholder="Search for labs by name...">
+            </div>
+           
+        </div>
+
+        <!-- Labs Section -->
+        <section class="labs-section">
+            <h2 class="section-title animate__animated animate__fadeInLeft">All Laboratories</h2>
+            <div class="labs-grid">
+                {% for lab in labs %}
+                <div class="lab-card animate__animated" data-lab-name="{{ lab.name|lower }}" data-status="available" data-capacity="{{ lab.capacity }}" data-floor="{{ lab.location }}">
+                    <div class="lab-image">
+                        {% if lab.image %}
+                            <img src="{{ lab.image.url }}" alt="{{ lab.name }}" >
+                        {% else %}
+                            <div class="placeholder-image">No Image</div>
+                        {% endif %}
+                    </div>
+                    <div class="lab-info">
+                        <h3>{{ lab.name }}</h3>
+                        
+                        <span class="lab-status status-available">Available</span>
+                        <div class="lab-details">
+                            <div class="detail-item">
+                                <i class="bi bi-people"></i>
+                                <span>Capacity: {{ lab.capacity }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="bi bi-building"></i>
+                                <span>Floor: {{ lab.location }}</span>
+                            </div>
+                        </div>
+                        <div class="lab-actions">
+                            <a href="{% url 'lab-product' lab.id %}" class="view-lab-btn">
+                                <i class="bi bi-eye"></i> View Lab
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="animate__animated animate__fadeInUp">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>LabManager Pro</h3>
+                    <p>Comprehensive laboratory management solution for educational institutions, research centers, and corporate R&D facilities.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#"><i class="bi bi-arrow-right"></i> Home</a></li>
+                        <li><a href="#"><i class="bi bi-arrow-right"></i> Dashboard</a></li>
+                        <li><a href="#"><i class="bi bi-arrow-right"></i> Equipment</a></li>
+                        <li><a href="#"><i class="bi bi-arrow-right"></i> Bookings</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <p><i class="bi bi-envelope"></i> Email: support@labmanager.com</p>
+                    <p><i class="bi bi-telephone"></i> Phone: +1 (555) 123-4567</p>
+                    <p><i class="bi bi-geo-alt"></i> Address: 123 Innovation Drive, Tech City</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Lab Management System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Modal -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-header">
+            <h3>Booking Cart</h3>
+            <button class="close-cart" onclick="closeCart()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="cart-empty">
+                <i class="bi bi-cart-x"></i>
+                <p>Your cart is empty</p>
+            </div>
+        </div>
+        <div class="cart-total">
+            <span>Total:</span>
+            <span id="cartTotal">0 items</span>
+        </div>
+        <div class="cart-checkout">
+            <button class="checkout-btn" onclick="checkout()">
+                <i class="bi bi-check-circle"></i> Proceed to Booking
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="bi bi-check-circle-fill"></i>
+        <span id="toastMessage">Item added to cart</span>
+    </div>
+
+    <script>
+        // Cart functionality
+        let cartItems = [];
+      
+        // Initialize animations when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate lab cards when they come into view
+            const labCards = document.querySelectorAll('.lab-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate__fadeIn');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            labCards.forEach(card => {
+                observer.observe(card);
+            });
+            
+            // Add animation to search filter on focus
+            const searchInput = document.getElementById('labSearch');
+            if (searchInput) {
+                searchInput.addEventListener('focus', function() {
+                    this.parentElement.parentElement.classList.add('animate__pulse');
+                });
+                
+                searchInput.addEventListener('blur', function() {
+                    this.parentElement.parentElement.classList.remove('animate__pulse');
+                });
+            }
+        });
+   
+        document.getElementById('labSearch').addEventListener('input', function () {
+            const searchValue = this.value.toLowerCase().trim();
+            const labCards = document.querySelectorAll('.lab-card');
+
+            labCards.forEach(card => {
+                const labName = card.dataset.labName.toLowerCase();
+                if (labName.includes(searchValue)) {
+                    card.style.display = 'block';
+                    card.classList.add('animate__fadeIn');
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Filter functionality
+        document.getElementById('statusFilter').addEventListener('change', filterLabs);
+        document.getElementById('capacityFilter').addEventListener('change', filterLabs);
+        document.getElementById('floorFilter').addEventListener('change', filterLabs);
+        
+        function filterLabs() {
+            const searchValue = document.getElementById('labSearch').value.toLowerCase();
+            const statusValue = document.getElementById('statusFilter').value;
+            const capacityValue = document.getElementById('capacityFilter').value;
+            const floorValue = document.getElementById('floorFilter').value;
+            
+            document.querySelectorAll('.lab-card').forEach(card => {
+                const labName = card.dataset.labName.toLowerCase();
+                const status = card.dataset.status;
+                const capacity = parseInt(card.dataset.capacity);
+                const floor = card.dataset.floor;
+                
+                let matchesSearch = labName.includes(searchValue);
+                let matchesStatus = statusValue === 'all' || status === statusValue;
+                let matchesCapacity = true;
+                let matchesFloor = floorValue === 'all' || floor === floorValue;
+                
+                if (capacityValue !== 'all') {
+                    if (capacityValue === 'small') matchesCapacity = capacity <= 10;
+                    if (capacityValue === 'medium') matchesCapacity = capacity > 10 && capacity <= 20;
+                    if (capacityValue === 'large') matchesCapacity = capacity > 20;
+                }
+                
+                if (matchesSearch && matchesStatus && matchesCapacity && matchesFloor) {
+                    card.style.display = 'block';
+                    card.classList.add('animate__fadeIn');
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // Close cart when clicking outside
+        document.addEventListener('click', function(event) {
+            const cartModal = document.getElementById('cartModal');
+            if (cartModal.classList.contains('open') && 
+                !event.target.closest('#cartModal') && 
+                !event.target.closest('#cartButton')) {
+                closeCart();
+            }
+        });
+        
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

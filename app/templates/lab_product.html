@@ -1,0 +1,1131 @@
+{% load static %}
+{% load dict_extras %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ selected_lab.name }} - Equipment</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<style>
+    /* ===========================
+       GLOBAL STYLES
+    =========================== */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    :root {
+        --primary: #4776E6;
+        --primary-light: #8E54E9;
+        --primary-gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        --secondary: #00c6ff;
+        --secondary-light: #0072ff;
+        --secondary-gradient: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-light) 100%);
+        --accent: #ff6b6b;
+        --light: #f8f9fa;
+        --light-gray: #e9ecef;
+        --dark: #2c3e50;
+        --dark-80: rgba(44, 62, 80, 0.8);
+        --dark-60: rgba(44, 62, 80, 0.6);
+        --success: #0ba360;
+        --success-light: #3cba92;
+        --success-gradient: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
+        --warning: #f6d365;
+        --warning-light: #fda085;
+        --warning-gradient: linear-gradient(135deg, var(--warning) 0%, var(--warning-light) 100%);
+        --danger: #ff5858;
+        --danger-light: #f09819;
+        --danger-gradient: linear-gradient(135deg, var(--danger) 0%, var(--danger-light) 100%);
+        --gray: #7f8c8d;
+        --gray-light: #bdc3c7;
+        --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --card-shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.12);
+        --transition: all 0.3s ease;
+        --border-radius: 12px;
+        --border-radius-sm: 8px;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        color: var(--dark);
+        line-height: 1.6;
+        min-height: 100vh;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    /* ===========================
+       HEADER & NAVIGATION
+    =========================== */
+    header {
+        background: var(--primary-gradient);
+        color: #fff;
+        padding: 1rem 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+    }
+
+    .logo i {
+        margin-right: 10px;
+        color: #fff;
+    }
+
+    nav ul {
+        display: flex;
+        list-style: none;
+        gap: 0.5rem;
+    }
+
+    nav ul li a {
+        color: #fff;
+        text-decoration: none;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0.8rem;
+        border-radius: var(--border-radius-sm);
+        font-weight: 500;
+    }
+
+    nav ul li a i {
+        margin-right: 5px;
+    }
+
+    nav ul li a:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+    }
+
+    /* ===========================
+       PAGE TITLE
+    =========================== */
+    .page-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 2rem 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid transparent;
+        border-image: var(--secondary-gradient);
+        border-image-slice: 1;
+    }
+
+    .page-title h1 {
+        color: var(--dark);
+        font-size: 1.8rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .page-title h1 i {
+        background: var(--secondary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* ===========================
+       LAB SELECTOR
+    =========================== */
+    .lab-selector {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .lab-selector select {
+        flex: 1;
+        padding: 0.8rem 1rem;
+        border: 1px solid var(--light-gray);
+        border-radius: var(--border-radius-sm);
+        font-size: 1rem;
+        background-color: #f8f9fa;
+        transition: var(--transition);
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%237f8c8d' viewBox='0 0 16 16'%3E%3Cpath d='M8 12L2 6h12L8 12z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 16px;
+    }
+
+    .lab-selector select:focus {
+        outline: none;
+        border-color: transparent;
+        background-image: linear-gradient(white, white), var(--secondary-gradient);
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.2);
+    }
+
+    .lab-info {
+        display: flex;
+        flex-direction: column;
+        font-weight: 500;
+        color: var(--dark);
+        gap: 0.5rem;
+    }
+
+    .lab-info span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .lab-info i {
+        background: var(--secondary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* ===========================
+       STATS OVERVIEW
+    =========================== */
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: var(--secondary-gradient);
+    }
+
+    .stat-card:nth-child(2)::before { 
+        background: var(--success-gradient); 
+    }
+    
+    .stat-card:nth-child(3)::before { 
+        background: var(--warning-gradient); 
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-shadow-hover);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: var(--border-radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        background: var(--secondary-gradient);
+        color: #fff;
+    }
+
+    .stat-card:nth-child(2) .stat-icon {
+        background: var(--success-gradient);
+    }
+
+    .stat-card:nth-child(3) .stat-icon {
+        background: var(--warning-gradient);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 0.3rem;
+        color: var(--dark);
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--gray);
+        font-weight: 500;
+    }
+
+    /* ===========================
+       CATEGORY CHART
+    =========================== */
+    .category-chart {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 2rem;
+        width: 100%;
+        height: 50%;
+        
+        
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .category-chart h3 {
+        margin-bottom: 1rem;
+        color: var(--dark);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .category-chart h3 i {
+        background: var(--secondary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .chart-container {
+        height: 30vh;
+        width: 50vw;
+        flex: 1;
+        position: relative;
+
+       
+    }
+
+    /* ===========================
+       ACTION BAR
+    =========================== */
+    .action-bar {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 2rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .search-box {
+        flex: 1;
+        position: relative;
+        min-width: 250px;
+        max-width: 400px;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 0.8rem 0.8rem 0.8rem 40px;
+        border: 1px solid var(--light-gray);
+        border-radius: var(--border-radius-sm);
+        font-size: 1rem;
+        transition: var(--transition);
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: transparent;
+        background-image: linear-gradient(white, white), var(--secondary-gradient);
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.2);
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: var(--border-radius-sm);
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        transition: var(--transition);
+        font-weight: 500;
+        color: #fff;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: var(--secondary-gradient);
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-gradient);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(71, 118, 230, 0.3);
+    }
+
+    .btn-success {
+        background: var(--success-gradient);
+    }
+
+    .btn-success:hover {
+        background: linear-gradient(135deg, var(--success-light) 0%, var(--success) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(11, 163, 96, 0.3);
+    }
+
+    /* ===========================
+       FILTER SECTION
+    =========================== */
+    .filter-section {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 2rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        align-items: center;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        min-width: 150px;
+        flex: 1;
+    }
+
+    .filter-group label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: var(--dark);
+        font-size: 0.9rem;
+    }
+
+    .filter-group select {
+        padding: 0.7rem;
+        border: 1px solid var(--light-gray);
+        border-radius: var(--border-radius-sm);
+        background-color: #f8f9fa;
+        transition: var(--transition);
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%237f8c8d' viewBox='0 0 16 16'%3E%3Cpath d='M8 12L2 6h12L8 12z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.7rem center;
+        background-size: 12px;
+    }
+
+    .filter-group select:focus {
+        outline: none;
+        border-color: transparent;
+        background-image: linear-gradient(white, white), var(--secondary-gradient);
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.2);
+    }
+
+    /* ===========================
+       EQUIPMENT GRID & CARDS
+    =========================== */
+    .equipment-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .equipment-card {
+        background: #fff;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        display: flex;
+        flex-direction: column;
+        transition: var(--transition);
+        position: relative;
+        height: 100%;
+    }
+
+    .equipment-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-shadow-hover);
+    }
+
+    .equipment-header {
+        padding: 1.2rem 1.5rem 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .equipment-id {
+        font-size: 0.8rem;
+        color: var(--gray);
+        font-weight: 500;
+    }
+
+    .equipment-type {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #fff;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        background: var(--secondary-gradient);
+    }
+
+    .equipment-image {
+        height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 3rem;
+        margin: 0.5rem 1.5rem;
+        border-radius: var(--border-radius-sm);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .equipment-image::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%);
+        z-index: 1;
+    }
+
+    .equipment-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: var(--border-radius-sm);
+        position: relative;
+        z-index: 0;
+    }
+
+    .equipment-image i {
+        position: relative;
+        z-index: 2;
+    }
+
+    .pc { background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%); }
+    .laptop { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); }
+    .printer { background: linear-gradient(135deg, #7f8c8d 0%, #95a5a6 100%); }
+    .peripheral { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); }
+
+    .equipment-info {
+        padding: 1rem 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .equipment-info h3 {
+        font-size: 1.3rem;
+        color: var(--dark);
+        line-height: 1.2;
+    }
+
+    .equipment-info p {
+        color: var(--gray);
+        font-size: 0.9rem;
+        line-height: 1.5;
+        flex-grow: 1;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+    }
+
+    .bg-warning {
+        background-color: rgba(246, 211, 101, 0.2);
+        color: #856404;
+    }
+    .bg-green {
+        background-color: rgba(223, 218, 220, 0.2);
+        color: #856404;
+    }
+
+    .equipment-status {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--light-gray);
+        align-items: center;
+    }
+
+    .status-badge {
+        padding: 0.4rem 0.9rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-available { 
+        background: rgba(46, 204, 113, 0.15);
+        color: #27ae60; 
+    }
+    .status-in_use { 
+        background: rgba(231, 76, 60, 0.15);
+        color: #c0392b; 
+    }
+    .status-maintenance { 
+        background: rgba(243, 156, 18, 0.15);
+        color: #e67e22; 
+    }
+    .status-pending { 
+        background: rgba(155, 89, 182, 0.15);
+        color: #8e44ad; 
+    }
+    .status-returned { 
+        background: rgba(52, 152, 219, 0.15);
+        color: #2980b9; 
+    }
+
+    .equipment-location {
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        font-size: 0.85rem;
+        color: var(--gray);
+        gap: 0.25rem;
+    }
+
+    .equipment-location i {
+        background: var(--secondary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Equipment Actions */
+    .equipment-actions {
+        display: flex;
+        padding: 0 1.5rem 1.5rem;
+        gap: 0.5rem;
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 0.6rem;
+        text-align: center;
+        border-radius: var(--border-radius-sm);
+        color: #fff;
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .view-btn { 
+        background: var(--secondary-gradient); 
+    }
+    .view-btn:hover { 
+        background: var(--primary-gradient); 
+    }
+
+    .edit-btn { 
+        background: var(--warning-gradient); 
+    }
+    .edit-btn:hover { 
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); 
+    }
+
+    .available-btn { 
+        background: var(--success-gradient); 
+    }
+    .available-btn:hover { 
+        background: linear-gradient(135deg, var(--success-light) 0%, var(--success) 100%); 
+    }
+
+    .text-primary {
+        background: rgba(52, 152, 219, 0.15);
+        color: #2980b9;
+    }
+
+    .action-btn a {
+        color: inherit;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        gap: 0.35rem;
+    }
+
+    /* ===========================
+       FOOTER
+    =========================== */
+    footer {
+        background: var(--primary-gradient);
+        color: #fff;
+        padding: 2rem 0;
+        margin-top: 3rem;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    /* ===========================
+       RESPONSIVE DESIGN
+    =========================== */
+    @media (max-width: 768px) {
+        .stats-overview { 
+            grid-template-columns: repeat(2, 1fr); 
+        }
+        
+        .equipment-grid { 
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+        }
+        
+        .action-bar { 
+            flex-direction: column; 
+            align-items: stretch; 
+        }
+        
+        .action-buttons { 
+            width: 100%; 
+            justify-content: space-between; 
+        }
+        
+        .lab-selector {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .lab-selector select {
+            width: 100%;
+        }
+        
+        .filter-section {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .filter-group {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .equipment-grid { 
+            grid-template-columns: 1fr; 
+        }
+        
+        .stats-overview { 
+            grid-template-columns: 1fr; 
+        }
+        
+        .action-buttons { 
+            flex-direction: column; 
+            gap: 0.5rem; 
+        }
+        
+        .btn { 
+            width: 100%; 
+            justify-content: center; 
+        }
+        
+        nav ul {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .header-content {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .page-title {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+
+    /* Animation for cards when filtering */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .equipment-card {
+        animation: fadeIn 0.5s ease-out;
+    }
+</style>
+
+<body>
+
+{% include "navbar.html" %}
+
+<div class="container">
+    <!-- Lab Selector -->
+    <div class="lab-selector">
+        <form method="post" id="lab-selector-form">
+            {% csrf_token %}
+            <select name="lab_id" onchange="document.getElementById('lab-selector-form').submit()">
+                {% for lab in all_lab %}
+                    <option value="{{ lab.id }}" {% if lab.id == selected_lab.id %}selected{% endif %}>
+                        {{ lab.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+        {% if selected_lab %}
+        <div class="lab-info">
+            <span><i class="fas fa-info-circle"></i> <strong>Lab Name:</strong> {{ selected_lab.name }}</span>
+            <span><strong>Description:</strong> {{ selected_lab.description }}</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="stats-overview">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-desktop"></i></div>
+            <div class="stat-value">{{ total_products }}</div>
+            <div class="stat-label">Total Products</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-value">{{ available_products }}</div>
+            <div class="stat-label">Available</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-tools"></i></div>
+            <div class="stat-value">{{ in_loan_products }}</div>
+            <div class="stat-label">In Loan</div>
+        </div>
+    </div>
+
+    <!-- Category Counts -->
+    {% if total_products != 0 %}
+    <div class="category-chart">
+        <h3><i class="fas fa-chart-pie"></i> Equipment by Category</h3>
+        <div class="chart-container">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search equipment...">
+        </div>
+        <div class="action-buttons">
+            <button class="btn btn-primary"><i class="fas fa-plus"></i> Add Equipment</button>
+            <button class="btn btn-success"><i class="fas fa-file-export"></i> Generate Report</button>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-group">
+            <label>Equipment Type</label>
+            <select name="category">
+                <option value="">All Types</option>
+                {% for category in categories %}
+                    <option value="{{ category.name }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Status</label>
+            <select name="status">
+                <option value="">All Status</option>
+                <option value="available">Available</option>
+                <option value="in_loan">In Loan</option>
+                <option value="pending">Pending</option>
+                <option value="transferred">Transferred</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Sort By</label>
+            <select name="sort_by">
+                <option value="name_asc">Name (A-Z)</option>
+                <option value="name_desc">Name (Z-A)</option>
+                <option value="recent">Recent</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Equipment Grid -->
+    <div class="equipment-grid">
+        {% for product in lab_products %}
+        <div class="equipment-card" 
+             data-name="{{ product.name|lower }}"
+             data-desc="{{ product.description|default:''|lower }}"
+             data-category="{{ product.category.name|lower }}"
+             data-status="{{ product.status|lower }}"
+             data-id="{{ product.id }}">
+            
+            <div class="equipment-header">
+                <div class="equipment-id">SN: {{ product.serial_number|default:"None" }}</div>
+                <div class="equipment-type">{{ product.category.name }}</div>
+            </div>
+
+            <div class="equipment-image pc">
+                {% if product.image %}
+                <img src="{{product.image.url}}" alt="{{product.name}}">
+                {% else %}
+                <i class="fas fa-desktop"></i>
+                {% endif %}
+            </div>
+
+            <div class="equipment-info">
+                <h3>{{ product.name  | truncatechars:30}}</h3>
+               
+                {% if product.id in transferred_dict %}
+                {% with transfer=transferred_dict|dict_get:product.id %}
+              
+
+                <form  method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="badge bg-warning" name="transfer_id" value="{{ transfer.id }}"  title="From: {{ transfer.from_lab.name }} | To: {{ transfer.to_lab.name }} | Date: {{ transfer.transferred_at|date:'Y-m-d H:i' }}">
+                        <i  class="fas fa-exchange-alt"></i> Transferred-{{transfer.id}} 
+                    </button>
+                </form>
+              
+                    
+                 {% endwith %}
+                {% else  %}
+                {% if product.status == "available" %}
+                <form action="{% url 'product_transfer' product.id %}" >
+                    <button type="submit" class="badge bg-warning" >
+                        <i  class="fas fa-exchange-alt"></i> apply Transferred
+                    </button>
+                </form>
+                {% endif %}
+                 {% endif %}
+                
+                <!-- <p>{{ product.description|truncatechars:40 }}</p> -->
+                
+                <div class="equipment-status">
+                    <div class="status-badge status-{{ product.status|lower }}">{{ product.status }}</div>
+                    <div class="equipment-location">
+                        <i class="fas fa-map-marker-alt"></i> {{ product.lab.name }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="equipment-actions">
+                <div class="action-btn view-btn">
+                    <a href="{% url 'product-detail' product.id %}"><i class="fas fa-eye"></i> Details</a>
+                </div>
+                {% if product.status == "pending" %}
+                 <div class="action-btn edit-btn"><i class="fas fa-clock"></i> Pending</div> 
+                {% elif product.status == "in_loan" %}
+                <div class="action-btn text-primary"><i class="fas fa-hand-holding-usd"></i> In Loan</div>
+                 {% else %} 
+                 <div class="action-btn available-btn"> 
+                     <a href="{% url 'load_request' product.id %}"><i class="fas fa-check-circle"></i> Available</a>
+                 </div>
+                 {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<footer>
+    <div class="container">
+        <p>&copy; 2025 Lab Management System</p>
+    </div>
+</footer>
+
+<script>
+
+
+    
+const equipmentCards = document.querySelectorAll('.equipment-card');
+const searchInput = document.querySelector('.search-box input');
+const categorySelect = document.querySelector('select[name="category"]');
+const statusSelect = document.querySelector('select[name="status"]');
+const sortSelect = document.querySelector('select[name="sort_by"]');
+
+// Transferred product ids from Django
+const transferred_dict_ids = [
+    {% for product_id in transferred_dict.keys %}
+        {{ product_id }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+];
+
+function filterAndSort() {
+    const query = searchInput.value.toLowerCase().trim();
+    const selectedCategory = categorySelect.value.toLowerCase();
+    const selectedStatus = statusSelect.value.toLowerCase();
+    const sortBy = sortSelect.value;
+
+    let cardsArray = Array.from(equipmentCards);
+
+    // Filter
+    cardsArray.forEach(card => {
+        const name = card.dataset.name;
+        const desc = card.dataset.desc;
+        const category = card.dataset.category;
+        const status = card.dataset.status;
+        const productId = parseInt(card.dataset.id);
+
+        const matchesSearch = name.includes(query) || desc.includes(query) || category.includes(query);
+        const matchesCategory = selectedCategory === "" || category === selectedCategory;
+
+        let matchesStatus = false;
+        if (selectedStatus === "" || selectedStatus === status) {
+            matchesStatus = true;
+        } else if (selectedStatus === "transferred") {
+            matchesStatus = transferred_dict_ids.includes(productId);
+        }
+
+        if (matchesSearch && matchesCategory && matchesStatus) {
+            card.style.display = '';
+            card.style.animation = 'fadeIn 0.5s ease-out';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // Sort
+    cardsArray = cardsArray.filter(card => card.style.display !== 'none');
+    const grid = document.querySelector('.equipment-grid');
+
+    if (sortBy === 'name_asc') {
+        cardsArray.sort((a, b) => a.dataset.name.localeCompare(b.dataset.name));
+    } else if (sortBy === 'name_desc') {
+        cardsArray.sort((a, b) => b.dataset.name.localeCompare(a.dataset.name));
+    } else if (sortBy === 'recent') {
+        cardsArray.sort((a, b) => b.dataset.id - a.dataset.id);
+    }
+
+    // Re-append in new order
+    cardsArray.forEach(card => grid.appendChild(card));
+}
+
+// Event listeners
+searchInput.addEventListener('input', filterAndSort);
+categorySelect.addEventListener('change', filterAndSort);
+statusSelect.addEventListener('change', filterAndSort);
+sortSelect.addEventListener('change', filterAndSort);
+
+// Initial call
+filterAndSort();
+
+// --- Chart.js code remains the same ---
+const ctx = document.getElementById('categoryChart').getContext('2d');
+const categories = [
+    {% for category in category_counts %}
+        "{{ category.category__name }}"{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+];
+const counts = [
+    {% for category in category_counts %}
+        {{ category.count }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+];
+
+const categoryChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: categories,
+        datasets: [{
+            data: counts,
+            backgroundColor: ['#3498db','#9b59b6','#2ecc71','#f39c12','#e74c3c','#7f8c8d','#34495e','#16a085'],
+            borderColor: '#fff',
+            borderWidth: 2,
+            hoverOffset: 10
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: 'right',
+                labels: { font: { size: 12 }, padding: 20 }
+            }
+        },
+        cutout: '50%',
+        animation: { animateScale: true, animateRotate: true }
+    }
+});
+
+
+
+</script>
+</body>
+</html>

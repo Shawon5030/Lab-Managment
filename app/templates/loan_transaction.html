@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Equipment Loan System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .loan-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%);
+            color: white;
+            padding: 20px;
+        }
+        
+        .form-section {
+            padding: 25px;
+        }
+        
+        .transaction-table {
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .transaction-table thead {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            color: white;
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 30px 0;
+            margin-top: 40px;
+        }
+        
+        .required-field::after {
+            content: "*";
+            color: var(--accent);
+            margin-left: 4px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%);
+            border: none;
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2980b9 0%, var(--secondary) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body>
+
+
+    {% include "navbar.html" %}
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-5 fw-bold mb-3">Lab Equipment Loan System</h1>
+                <p class="lead">Manage laboratory equipment loans for students and faculty members</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <!-- Loan Transaction Card -->
+                <div class="loan-card mb-5">
+                    <div class="card-header">
+                        <h3 class="mb-0"><i class="bi bi-pencil-square me-2"></i>New Loan Transaction</h3>
+                    </div>
+                    <div class="form-section">
+                        <form id="loanForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="labName" class="form-label required-field">Lab Name</label>
+                                    <select class="form-select" id="labName" required>
+                                        <option value="" selected disabled>Select Lab</option>
+                                        <option value="chemistry">Chemistry Lab</option>
+                                        <option value="physics">Physics Lab</option>
+                                        <option value="biology">Biology Lab</option>
+                                        <option value="computer">Computer Lab</option>
+                                        <option value="research">Research Lab</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="productName" class="form-label required-field">Product Name</label>
+                                    <select class="form-select" id="productName" required>
+                                        <option value="" selected disabled>Select Product</option>
+                                        <option value="microscope">Microscope</option>
+                                        <option value="centrifuge">Centrifuge</option>
+                                        <option value="spectrometer">Spectrometer</option>
+                                        <option value="oscilloscope">Oscilloscope</option>
+                                        <option value="laptop">Laptop</option>
+                                        <option value="tablet">Tablet</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label required-field">Requester Type</label>
+                                    <div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="requesterType" id="student" value="student" checked>
+                                            <label class="form-check-label" for="student">Student</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="requesterType" id="teacher" value="teacher">
+                                            <label class="form-check-label" for="teacher">Teacher</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="requesterName" class="form-label required-field">Full Name</label>
+                                    <input type="text" class="form-control" id="requesterName" placeholder="Enter full name" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="takeDate" class="form-label required-field">Take Date</label>
+                                    <input type="date" class="form-control" id="takeDate" required>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="returnDate" class="form-label required-field">Return Date</label>
+                                    <input type="date" class="form-control" id="returnDate" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Additional Notes</label>
+                                <textarea class="form-control" id="notes" rows="3" placeholder="Any special instructions or comments"></textarea>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="reset" class="btn btn-secondary me-md-2"><i class="bi bi-x-circle me-1"></i> Clear Form</button>
+                                <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i> Submit Loan Request</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Transaction History -->
+                <h3 class="mb-4"><i class="bi bi-list-check me-2"></i>Recent Loan Transactions</h3>
+                
+                <div class="table-responsive transaction-table">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Lab</th>
+                                <th>Product</th>
+                                <th>Requester</th>
+                                <th>Take Date</th>
+                                <th>Return Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Chemistry Lab</td>
+                                <td>Microscope</td>
+                                <td>Dr. Smith (Teacher)</td>
+                                <td>2023-09-10</td>
+                                <td>2023-09-15</td>
+                                <td><span class="status-badge bg-success">Returned</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Physics Lab</td>
+                                <td>Oscilloscope</td>
+                                <td>Jane Doe (Student)</td>
+                                <td>2023-09-18</td>
+                                <td>2023-09-25</td>
+                                <td><span class="status-badge bg-warning text-dark">On Loan</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Computer Lab</td>
+                                <td>Laptop</td>
+                                <td>John Wilson (Student)</td>
+                                <td>2023-09-20</td>
+                                <td>2023-09-27</td>
+                                <td><span class="status-badge bg-warning text-dark">On Loan</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Biology Lab</td>
+                                <td>Centrifuge</td>
+                                <td>Dr. Johnson (Teacher)</td>
+                                <td>2023-09-05</td>
+                                <td>2023-09-12</td>
+                                <td><span class="status-badge bg-success">Returned</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Research Lab</td>
+                                <td>Spectrometer</td>
+                                <td>Dr. Lee (Teacher)</td>
+                                <td>2023-09-22</td>
+                                <td>2023-09-29</td>
+                                <td><span class="status-badge bg-info">Pending</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5>LabLoan Manager</h5>
+                    <p>A comprehensive solution for managing laboratory equipment loans.</p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Home</a></li>
+                        <li><a href="#" class="text-white">Transactions</a></li>
+                        <li><a href="#" class="text-white">Inventory</a></li>
+                        <li><a href="#" class="text-white">Support</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contact Us</h5>
+                    <address>
+                        <i class="bi bi-building me-2"></i> Science Building, Room 205<br>
+                        <i class="bi bi-envelope me-2"></i> labloan@university.edu<br>
+                        <i class="bi bi-telephone me-2"></i> (555) 123-4567
+                    </address>
+                </div>
+            </div>
+            <hr class="my-4 bg-light">
+            <p>&copy; 2023 LabLoan Manager. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default dates
+            const today = new Date();
+            const returnDate = new Date();
+            returnDate.setDate(today.getDate() + 7);
+            
+            document.getElementById('takeDate').valueAsDate = today;
+            document.getElementById('returnDate').valueAsDate = returnDate;
+            
+            // Form submission
+            document.getElementById('loanForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const labName = document.getElementById('labName').value;
+                const productName = document.getElementById('productName').value;
+                const requesterType = document.querySelector('input[name="requesterType"]:checked').value;
+                const requesterName = document.getElementById('requesterName').value;
+                const takeDate = document.getElementById('takeDate').value;
+                const returnDate = document.getElementById('returnDate').value;
+                
+                // Basic validation
+                if (!labName || !productName || !requesterName || !takeDate || !returnDate) {
+                    alert('Please fill all required fields');
+                    return;
+                }
+                
+                // Check if return date is after take date
+                if (new Date(returnDate) <= new Date(takeDate)) {
+                    alert('Return date must be after take date');
+                    return;
+                }
+                
+                // In a real application, you would send the data to a server here
+                alert('Loan request submitted successfully!');
+                this.reset();
+                
+                // Reset dates
+                document.getElementById('takeDate').valueAsDate = today;
+                document.getElementById('returnDate').valueAsDate = returnDate;
+            });
+        });
+    </script>
+</body>
+</html>

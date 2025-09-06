@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Loan Management System</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; }
+        .navbar { background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); }
+        .sidebar { background: #2c3e50; color: white; height: 100vh; position: sticky; top: 0; }
+        .sidebar .nav-link { color: rgba(255,255,255,0.8); transition: all 0.3s; }
+        .sidebar .nav-link.active, .sidebar .nav-link:hover { color: white; background: rgba(255,255,255,0.1); border-left: 3px solid #3498db; }
+        .main-content { padding: 20px; }
+        .card { border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .card-header { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; border-radius: 10px 10px 0 0 !important; }
+        .stats-card i { font-size: 2.5rem; margin-bottom: 10px; }
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+{% include "navbar.html" %}
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 sidebar d-md-block">
+            <ul class="nav flex-column mt-3">
+                <li class="nav-item"><a class="nav-link active" href="#"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-clipboard-check"></i> Pending Requests <span class="badge bg-warning float-end">{{ pending_count }}</span></a></li>
+                <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-check-circle"></i> Approved Loans <span class="badge bg-success float-end">{{ approved_count }}</span></a></li>
+                <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-x-circle"></i> Rejected Loans <span class="badge bg-danger float-end">{{ rejected_count }}</span></a></li>
+                <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-arrow-repeat"></i> Overdue Returns <span class="badge bg-warning float-end">{{ overdue_count }}</span></a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <main class="col-md-9 col-lg-10 main-content">
+            <h2 class="mb-4">Loan Request Management</h2>
+
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-2"><div class="card text-center stats-card"><div class="card-body"><i class="bi bi-clipboard-check text-warning"></i><div class="number">{{ pending_count }}</div><div class="label">Pending</div></div></div></div>
+                <div class="col-md-3 mb-2"><div class="card text-center stats-card"><div class="card-body"><i class="bi bi-check-circle text-success"></i><div class="number">{{ approved_count }}</div><div class="label">Approved</div></div></div></div>
+                <div class="col-md-3 mb-2"><div class="card text-center stats-card"><div class="card-body"><i class="bi bi-x-circle text-danger"></i><div class="number">{{ rejected_count }}</div><div class="label">Rejected</div></div></div></div>
+                <div class="col-md-3 mb-2"><div class="card text-center stats-card"><div class="card-body"><i class="bi bi-arrow-repeat text-warning"></i><div class="number">{{ overdue_count }}</div><div class="label">Overdue</div></div></div></div>
+            </div>
+
+            <!-- Loan Table -->
+            <div class="card">
+                <div class="card-header">Loan Requests</div>
+                <div class="card-body">
+                    <table class="table table-hover" id="loansTable">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Lab</th>
+                                <th>Requester</th>
+                                <th>Request Date</th>
+                                <th>Return Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in load_req %}
+                            <tr>
+                                <td>{{data.product.name|truncatechars:20}}</td>
+                                <td>{{data.product.lab.name}}</td>
+                                <td>{{data.requested_by.username}}</td>
+                                <td>{{data.request_date|date:"Y-m-d"}}</td>
+                                <td>{{data.return_date|default:"-"}}</td>
+                                <td>
+                                    {% if data.status == "pending" %}
+                                        <span class="badge bg-warning status-badge">Pending</span>
+                                    {% elif data.status == "approved" %}
+                                        <span class="badge bg-success status-badge">Approved</span>
+                                    {% elif data.status == "rejected" %}
+                                        <span class="badge bg-danger status-badge">Rejected</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if data.status == "pending" %}
+                                        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#approveModal{{data.id}}">Approve</button>
+                                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{data.id}}">Reject</button>
+                                    {% elif data.return_status %}
+                                        <span class="badge bg-info">Returned</span>
+                                    {%else%}
+                                        {% if data.status != "rejected" %}
+                                        <span class="badge bg-info">NOT Returned</span>
+                                        {%endif%}
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                            <!-- Approve Modal -->
+                            <div class="modal fade" id="approveModal{{data.id}}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-success text-white">
+                                            <h5 class="modal-title">Approve Request #{{data.id}}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Approve {{data.product.name}} for {{data.requested_by.username}}?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <form method="post" action="{% url 'approve' data.id 1 %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success">Confirm</button>
+                                            </form>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Reject Modal -->
+                            <div class="modal fade" id="rejectModal{{data.id}}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-danger text-white">
+                                            <h5 class="modal-title">Reject Request #{{data.id}}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Reject {{data.product.name}} for {{data.requested_by.username}}?
+                                            <div class="mt-2">
+                                                <label for="rejectionReason{{data.id}}" class="form-label">Reason</label>
+                                                <select class="form-select" id="rejectionReason{{data.id}}" name="reason" required>
+                                                    <option value="">Select</option>
+                                                    <option value="unavailable">Product Unavailable</option>
+                                                    <option value="duration">Loan Duration Too Long</option>
+                                                    <option value="Violates">Violates Policy</option>
+                                                    <option value="other">Other</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <form method="post" action="{% url 'approve' data.id 2 %}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="reason" id="hiddenReason{{data.id}}">
+                                                <button type="submit" class="btn btn-danger" onclick="document.getElementById('hiddenReason{{data.id}}').value=document.getElementById('rejectionReason{{data.id}}').value">Confirm</button>
+                                            </form>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<footer class="text-center py-3 bg-dark text-white">
+    © 2025 Lab Equipment Loan System. Admin Panel v2.1
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#loansTable').DataTable({
+            "pageLength": 10
+        });
+    });
+</script>
+
+</body>
+</html>

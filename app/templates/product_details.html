@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dell OptiPlex 3070 - CSE Lab Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #9b59b6;
+            --light: #f5f7fa;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --gray: #95a5a6;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            color: var(--secondary);
+        }
+        
+        .logo span {
+            color: var(--secondary);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        nav ul li a i {
+            margin-right: 5px;
+        }
+        
+        nav ul li a:hover {
+            color: var(--secondary);
+        }
+        
+        /* Breadcrumb */
+        .breadcrumb {
+            padding: 1rem 0;
+            margin-bottom: 1rem;
+        }
+        
+        .breadcrumb a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        
+        .breadcrumb span {
+            color: var(--gray);
+        }
+        
+        /* Page Title */
+        .page-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .page-title h1 {
+            color: var(--dark);
+            font-size: 1.8rem;
+        }
+        
+        .page-title h1 i {
+            margin-right: 10px;
+            color: var(--secondary);
+        }
+        
+        /* Main Content Layout */
+        .content-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        @media (max-width: 900px) {
+            .content-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Product Image */
+        .product-image {
+            background: linear-gradient(to right, #3498db, #2c3e50);
+            border-radius: 8px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 8rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* Product Info */
+        .product-info {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        
+        .product-id {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-available {
+            background-color: #e7f6e9;
+            color: var(--success);
+        }
+        
+        .product-specs {
+            margin-bottom: 1.5rem;
+        }
+        
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .spec-item:last-child {
+            border-bottom: none;
+        }
+        
+        .spec-label {
+            color: var(--gray);
+        }
+        
+        .spec-value {
+            font-weight: 500;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .btn i {
+            margin-right: 5px;
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+        
+        /* Details Section */
+        .details-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        /* Maintenance History */
+        .maintenance-list {
+            list-style: none;
+        }
+        
+        .maintenance-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .maintenance-item:last-child {
+            border-bottom: none;
+        }
+        
+        .maintenance-date {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .maintenance-desc {
+            margin-bottom: 0.3rem;
+        }
+        
+        .maintenance-tech {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* Usage Statistics */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .stat-card {
+            background-color: var(--light);
+            padding: 1rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* Related Equipment */
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .related-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .related-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .related-icon {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .related-name {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .related-status {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        
+        .footer-section {
+            flex: 1;
+            min-width: 200px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-section ul li a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-section ul li a:hover {
+            color: var(--secondary);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid #3c546c;
+            margin-top: 1.5rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+                justify-content: center;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-title {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .product-header {
+                flex-direction: column;
+            }
+            
+            .status-badge {
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    {% include "navbar.html" %}
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="{% url 'home' %}">Home</a> > <a href="{% url 'lab-product' product.lab.id %}">{{product.lab.name}}</</a> >  > <span>{{product.name}}</span>
+        </div>
+
+        <!-- Page Title -->
+        <div class="page-title">
+            <h1><i class="fas fa-desktop"></i> {{product.name| truncatechars:40}}</h1>
+            <div class="lab-info">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>{{product.lab.name}}</span>
+            </div>
+        </div>
+
+        <!-- Content Layout -->
+        <div class="content-layout">
+            <!-- Left Column -->
+            <div class="left-column">
+                <!-- Product Image -->
+                <div class="product-image">
+                    <i class="fas fa-desktop"></i>
+                </div>
+
+                <!-- Product Info -->
+                <div class="product-info">
+                    <div class="product-header">
+                        <div class="product-id">ID: {{product.serial_number}}</div>
+                        <div class="status-badge status-available">Available</div>
+                    </div>
+                    
+                    <div class="product-specs">
+                        <div class="spec-item">
+                            <div class="spec-label">Model:</div>
+                            <div class="spec-value">
+                            {% if product.description %}
+                            {{ product.description }}
+                            {% else %}
+                            N/A
+                            {% endif %}
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+
+                    <div class="action-buttons">
+                        <button disable class="btn btn-primary"><i class="fas fa-calendar-check"></i> Reserve</button>
+                        <button disable class="btn btn-warning"><i class="fas fa-tools"></i> Request Maintenance</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column">
+                <!-- Maintenance History -->
+                <div class="details-section">
+                    <h3 class="section-title">Maintenance History</h3>
+                    <ul class="maintenance-list">
+                        <li class="maintenance-item">
+                            <div class="maintenance-date">June 12, 2023</div>
+                            <div class="maintenance-desc">Operating system update and software installation</div>
+                            <div class="maintenance-tech">Technician: John Smith</div>
+                        </li>
+                        <li class="maintenance-item">
+                            <div class="maintenance-date">March 28, 2023</div>
+                            <div class="maintenance-desc">RAM upgrade from 4GB to 8GB</div>
+                            <div class="maintenance-tech">Technician: Sarah Johnson</div>
+                        </li>
+                        <li class="maintenance-item">
+                            <div class="maintenance-date">January 15, 2023</div>
+                            <div class="maintenance-desc">SSD replacement and data migration</div>
+                            <div class="maintenance-tech">Technician: Mike Williams</div>
+                        </li>
+                        <li class="maintenance-item">
+                            <div class="maintenance-date">October 5, 2022</div>
+                            <div class="maintenance-desc">Regular cleaning and dust removal</div>
+                            <div class="maintenance-tech">Technician: Emily Brown</div>
+                        </li>
+                    </ul>
+                </div>
+
+               
+            </div>
+        </div>
+
+      
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>CSE LabManager</h3>
+                    <p>Comprehensive computer lab management solution for educational institutions.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Dashboard</a></li>
+                        <li><a href="#">Equipment</a></li>
+                        <li><a href="#">Reservations</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <p>Email: support@cselabmanager.com</p>
+                    <p>Phone: +1 (555) 123-4567</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 CSE Lab Management System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

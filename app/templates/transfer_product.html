@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Transfer</title>
+    <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Transfer Product</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="product" class="form-label">Select Product</label>
+            <select name="product" id="product" class="form-select" required>
+                <option value="">-- Select Product --</option>
+                {% for product in products %}
+                <option value="{{ product.id }}">{{ product.name }} (Current Lab: {{ product.lab.name }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="to_lab" class="form-label">Transfer To Lab</label>
+            <select name="to_lab" id="to_lab" class="form-select" required>
+                <option value="">-- Select Lab --</option>
+                {% for lab in labs %}
+                <option value="{{ lab.id }}">{{ lab.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Transfer</button>
+    </form>
+
+    {% if message %}
+    <div class="alert alert-success mt-3">{{ message }}</div>
+    {% endif %}
+</div>
+</body>
+</html>

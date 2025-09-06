@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Request Form</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+            --secondary-gradient: linear-gradient(135deg, #6c757d 0%, #4b545c 100%);
+            --success-gradient: linear-gradient(135deg, #198754 0%, #0f5132 100%);
+            --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.2);
+            --hover-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+        }
+        
+        body {
+            background: linear-gradient(120deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .loan-form {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 35px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+        }
+        
+        .loan-form:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-5px);
+        }
+        
+        .form-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+        
+        .form-header i {
+            font-size: 3rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            display: inline-block;
+            padding: 15px;
+            border-radius: 50%;
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+        
+        .required-field::after {
+            content: "*";
+            color: red;
+            margin-left: 4px;
+        }
+        
+        footer {
+            background: linear-gradient(to right, #f8f9fa, #e9ecef, #f8f9fa);
+            padding: 25px 0;
+            margin-top: 30px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        /* Enhanced form controls */
+        .form-control {
+            border-radius: 8px;
+            padding: 12px 16px;
+            border: 1px solid #ced4da;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            border-color: #86b7fe;
+            transform: translateY(-2px);
+        }
+        
+        .form-control:disabled {
+            background-color: #f8f9fa;
+            opacity: 0.8;
+        }
+        
+        /* Enhanced button */
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 8px;
+            padding: 14px 24px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.2);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0b5ed7 0%, #570dc8 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+        
+        /* Form labels */
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #495057;
+            transition: color 0.3s;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .loan-form {
+                padding: 25px;
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .form-header i {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .loan-form {
+                padding: 20px 15px;
+                border-radius: 10px;
+            }
+            
+            .form-header {
+                margin-bottom: 25px;
+            }
+        }
+        
+        /* Animation for form elements */
+        .form-group {
+            animation-duration: 0.5s;
+            animation-fill-mode: both;
+        }
+        
+        /* Success message styling */
+        .alert-success {
+            background: var(--success-gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(25, 135, 84, 0.2);
+        }
+        
+        /* Custom focus states for accessibility */
+        .btn:focus, .form-control:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        
+        /* Decorative elements */
+        .bg-blob {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: linear-gradient(to right, rgba(13, 110, 253, 0.1), rgba(102, 16, 242, 0.1));
+            filter: blur(50px);
+            z-index: -1;
+            animation: float 15s infinite ease-in-out;
+        }
+        
+        .bg-blob:nth-child(1) {
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+        
+        .bg-blob:nth-child(2) {
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Decorative background elements -->
+    <div class="bg-blob"></div>
+    <div class="bg-blob"></div>
+
+    {% include "navbar.html" %}
+
+    <!-- Main Content -->
+    <main class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="loan-form animate__animated animate__fadeInUp">
+                    <div class="form-header">
+                        <i class="bi bi-clipboard-check"></i>
+                        <h2>Loan Request Form</h2>
+                        <p class="text-muted">Please fill out the required information below</p>
+                    </div>
+                    
+                    <form id="loanRequestForm" method="POST" action="{% url 'load_request' product.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3 form-group animate__animated animate__fadeIn">
+                            <label for="labName" class="form-label required-field">Lab Name</label>
+                            <input type="text" class="form-control" value="{{product.lab.name}}" id="labName" disabled>
+                        </div>
+                        
+                        <div class="mb-3 form-group animate__animated animate__fadeIn animate__delay-1s">
+                            <label for="productName" class="form-label required-field">Product Name</label>
+                            <input type="text" class="form-control" id="productName" disabled value="{{product.name | truncatechars:30}}">
+                        </div>
+                        
+                        <div class="mb-3 form-group animate__animated animate__fadeIn animate__delay-1s">
+                            <label for="serial-number" class="form-label required-field">Serial Number</label>
+                            <input type="text" class="form-control" id="serial-number" disabled value="{{product.serial_number}}">
+                        </div>
+
+                        <div class="mb-3 form-group animate__animated animate__fadeIn animate__delay-2s">
+                            <label for="username" class="form-label required-field">Username</label>
+                            <input type="text" class="form-control" id="username" disabled value="{{user.username}}">
+                        </div>
+      
+                        
+                        <div class="mb-3 form-group animate__animated animate__fadeIn animate__delay-2s">
+                            <label for="email" class="form-label required-field">Email Address</label>
+                            <input type="email" class="form-control" id="email" disabled value="{{user.email}}" >
+                        </div>
+                        {% if user.department %}
+                        <div class="mb-3 form-group animate__animated animate__fadeIn animate__delay-3s">
+                            <label for="department" class="form-label required-field">Department</label>
+                            <input type="text" class="form-control" id="department" disabled value="{{user.department}}" >
+                        </div>
+                        {% endif %}
+                        {% if user.semester %}
+                        <div class="mb-3 form-group animate__animated animate__fadeIn animate__delay-3s">
+                            <label for="semester" class="form-label required-field">Semester</label>
+                            <input type="text" class="form-control" id="semester" disabled value="{{user.semester}}" >
+                        </div>
+                        {% endif %}
+                        {% if user.roll_number %}
+                        <div class="mb-3 form-group animate__animated animate__fadeIn animate__delay-4s">
+                            <label for="roll_number" class="form-label required-field">Roll Number</label>
+                            <input type="text" class="form-control" id="roll_number" disabled value="{{user.roll_number}}" >
+                        </div>
+                        {% endif %}
+                        <div class="mb-3 form-group animate__animated animate__fadeIn animate__delay-4s">
+                            <label for="return_time" class="form-label required-field">Return Date</label>
+                            <input type="date" name="date" class="form-control" id="return_time" required>
+                        </div>
+                      
+                        
+                        
+                        <div class="d-grid form-group animate__animated animate__fadeIn animate__delay-5s">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-send me-2"></i>Submit Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="animate__animated animate__fadeInUp">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">© 2023 Lab Equipment Financing. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-decoration-none text-muted me-3">Privacy Policy</a>
+                    <a href="#" class="text-decoration-none text-muted">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Add animation on form submission
+        document.getElementById('loanRequestForm').addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+            submitBtn.disabled = true;
+        });
+        
+        // Add animation to form elements when they come into view
+        document.addEventListener('DOMContentLoaded', function() {
+            const formGroups = document.querySelectorAll('.form-group');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate__fadeIn');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            formGroups.forEach(group => {
+                observer.observe(group);
+            });
+            
+            // Add animation to the date input when focused
+            const dateInput = document.getElementById('return_time');
+            if (dateInput) {
+                dateInput.addEventListener('focus', function() {
+                    this.classList.add('animate__pulse');
+                });
+                
+                dateInput.addEventListener('blur', function() {
+                    this.classList.remove('animate__pulse');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

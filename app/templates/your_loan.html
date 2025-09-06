@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Return Product Requests</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+   {% include 'navbar.html'%}
+<div class="container mt-5">
+    <h2 class="mb-4">Return Product Requests</h2>
+
+    {% if return_requests %}
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Product</th>
+                <th>Reason</th>
+                <th>Date Requested</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in return_requests %}
+            <tr>
+                <td>{{ req.id }}</td>
+                <td>{{ req.requested_by.username }}</td>
+                <td>{{ req.product.name }}</td>
+                <td>{{ req.rejection_reason }}</td>
+                <td>{{ req.request_date|date:"Y-m-d H:i" }}</td>
+                <td>
+                    {% if req.status == "pending" %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% elif req.status == "approved" %}
+                        <span class="badge bg-success">Approved</span>
+                    {% elif req.status == "rejected" %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if req.status == "approved" and not req.return_status %}
+                        <form method="post" action="{% url 'your_loan' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" name="id" value="{{ req.id }}" class="btn btn-success btn-sm">
+                                Apply for Return
+                            </button>
+                        </form>
+                    {% elif req.return_status %}
+                        <span class="badge bg-info text-dark">Returned</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="alert alert-info">No loan requests found.</div>
+    {% endif %}
+    
+  
+</div>
+</body>
+</html>
