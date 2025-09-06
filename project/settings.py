@@ -118,7 +118,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_FILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [BASE_DIR / 'static']  # Your app's static files
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Directory where collectstatic will gather all static files
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -136,4 +138,4 @@ EMAIL_HOST_PASSWORD = ('mlwr mcts vnlt jdtr')
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-AUTH_USER_MODEL = 'app.User' 
+AUTH_USER_MODEL = 'app.User'
