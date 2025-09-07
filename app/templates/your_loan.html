@@ -5,64 +5,417 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Return Product Requests</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-dark: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+            --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            color: #334155;
+        }
+
+        .container { 
+            max-width: 1200px; 
+            padding-bottom: 2rem;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.75rem 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .page-header h2 {
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-header h2 i { 
+            margin-right: 12px; 
+            font-size: 1.8rem; 
+            background: rgba(255, 255, 255, 0.15);
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        /* Filters */
+        .filter-bar {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 180px;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+            font-size: 0.9rem;
+        }
+
+        .filter-bar input, .filter-bar select {
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            padding: 0.6rem 0.9rem;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .filter-bar input:focus, .filter-bar select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            outline: none;
+        }
+
+        /* Table */
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+        }
+
+        table { 
+            margin-bottom: 0; 
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        thead th {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary-dark) 100%);
+            color: white !important;
+            font-weight: 600;
+            padding: 1.2rem 1.5rem;
+            border: none;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-size: 0.95rem;
+        }
+
+        thead th:first-child {
+            border-top-left-radius: 16px;
+        }
+
+        thead th:last-child {
+            border-top-right-radius: 16px;
+        }
+
+        tbody td { 
+            padding: 1.2rem 1.5rem; 
+            vertical-align: middle; 
+            border-color: #f1f5f9; 
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+        
+        tbody tr {
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        tbody tr:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            height: 1px;
+            background: #f1f5f9;
+        }
+        
+        tbody tr:last-child:after {
+            display: none;
+        }
+        
+        tbody tr:hover {
+            background-color: #f8fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+        }
+
+        .status-badge { 
+            padding: 0.5rem 1rem; 
+            border-radius: 10px; 
+            font-weight: 600; 
+            font-size: 0.85rem;
+            display: inline-block;
+            text-align: center;
+            min-width: 90px;
+        }
+        
+        .bg-pending { 
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); 
+            color: #92400e; 
+            box-shadow: 0 2px 4px rgba(146, 64, 14, 0.1);
+        }
+        
+        .bg-approved { 
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); 
+            color: #065f46; 
+            box-shadow: 0 2px 4px rgba(6, 95, 70, 0.1);
+        }
+        
+        .bg-rejected { 
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); 
+            color: #991b1b; 
+            box-shadow: 0 2px 4px rgba(153, 27, 27, 0.1);
+        }
+        
+        .bg-returned { 
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); 
+            color: #3730a3; 
+            box-shadow: 0 2px 4px rgba(55, 48, 163, 0.1);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none; 
+            border-radius: 10px; 
+            padding: 0.6rem 1.2rem;
+            font-weight: 500; 
+            transition: var(--transition);
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .btn-success:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 16px rgba(16,185,129,0.3); 
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af; 
+            border: none; 
+            border-radius: 16px;
+            padding: 2rem; 
+            text-align: center; 
+            box-shadow: var(--card-shadow);
+        }
+
+        .alert-info i { 
+            font-size: 2.5rem; 
+            margin-bottom: 1rem; 
+            display: block; 
+            color: #3b82f6;
+        }
+        
+        .alert-info h4 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .alert-info p {
+            margin-bottom: 0;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 992px) {
+            .filter-bar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .table-container { 
+                overflow-x: auto; 
+                border-radius: 12px;
+            }
+            
+            .page-header { 
+                padding: 1.25rem; 
+                border-radius: 12px;
+            }
+            
+            .page-header h2 { 
+                font-size: 1.5rem; 
+            }
+            
+            thead th, tbody td { 
+                padding: 1rem 0.75rem; 
+            }
+            
+            .filter-bar {
+                padding: 1.25rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    {% include 'navbar.html' %}
 
-   {% include 'navbar.html'%}
-<div class="container mt-5">
-    <h2 class="mb-4">Return Product Requests</h2>
+    <div class="container mt-5">
+        <div class="page-header">
+            <h2><i class="bi bi-arrow-return-left"></i> Return Product Requests</h2>
+        </div>
 
-    {% if return_requests %}
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>User</th>
-                <th>Product</th>
-                <th>Reason</th>
-                <th>Date Requested</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for req in return_requests %}
-            <tr>
-                <td>{{ req.id }}</td>
-                <td>{{ req.requested_by.username }}</td>
-                <td>{{ req.product.name }}</td>
-                <td>{{ req.rejection_reason }}</td>
-                <td>{{ req.request_date|date:"Y-m-d H:i" }}</td>
-                <td>
-                    {% if req.status == "pending" %}
-                        <span class="badge bg-warning text-dark">Pending</span>
-                    {% elif req.status == "approved" %}
-                        <span class="badge bg-success">Approved</span>
-                    {% elif req.status == "rejected" %}
-                        <span class="badge bg-danger">Rejected</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if req.status == "approved" and not req.return_status %}
-                        <form method="post" action="{% url 'your_loan' %}" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" name="id" value="{{ req.id }}" class="btn btn-success btn-sm">
-                                Apply for Return
-                            </button>
-                        </form>
-                    {% elif req.return_status %}
-                        <span class="badge bg-info text-dark">Returned</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-        <div class="alert alert-info">No loan requests found.</div>
-    {% endif %}
-    
-  
-</div>
+        <!-- Filters -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <span class="filter-label">Status:</span>
+                <select id="statusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="returned">Returned</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">User:</span>
+                <input type="text" id="userSearch" placeholder="Search by username">
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">Product:</span>
+                <input type="text" id="productSearch" placeholder="Search by product">
+            </div>
+        </div>
+
+        {% if return_requests %}
+        <div class="table-container">
+            <table class="table table-hover" id="requestsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Product</th>
+                        <th>Reason</th>
+                        <th>Date Requested</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in return_requests %}
+                    <tr>
+                        <td><strong>#{{ req.id }}</strong></td>
+                        <td>{{ req.requested_by.username }}</td>
+                        <td>{{ req.product.name }}</td>
+                        <td>{{ req.rejection_reason }}</td>
+                        <td>{{ req.request_date|date:"Y-m-d H:i" }}</td>
+                        <td class="status">
+                            {% if req.status == "pending" %}
+                                <span class="status-badge bg-pending">Pending</span>
+                            {% elif req.status == "approved" %}
+                                <span class="status-badge bg-approved">Approved</span>
+                            {% elif req.status == "rejected" %}
+                                <span class="status-badge bg-rejected">Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if req.status == "approved" and not req.return_status %}
+                                <form method="post" action="{% url 'your_loan' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="id" value="{{ req.id }}">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="bi bi-check-circle"></i> Apply for Return
+                                    </button>
+                                </form>
+                            {% elif req.return_status %}
+                                <span class="status-badge bg-returned">Returned</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <div class="alert alert-info">
+                <i class="bi bi-inbox"></i>
+                <h4>No return requests found</h4>
+                <p>There are currently no return product requests to display.</p>
+            </div>
+        {% endif %}
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const statusFilter = document.getElementById("statusFilter");
+    const userSearch = document.getElementById("userSearch");
+    const productSearch = document.getElementById("productSearch");
+    const table = document.getElementById("requestsTable");
+    const rows = table ? table.getElementsByTagName("tr") : [];
+
+    function filterTable() {
+        const statusValue = statusFilter.value.toLowerCase();
+        const userValue = userSearch.value.toLowerCase();
+        const productValue = productSearch.value.toLowerCase();
+
+        for (let i = 1; i < rows.length; i++) { // skip header
+            let row = rows[i];
+            let userCell = row.cells[1].textContent.toLowerCase();
+            let productCell = row.cells[2].textContent.toLowerCase();
+            let statusCell = row.cells[5].textContent.toLowerCase();
+
+            // Handle "Returned" status explicitly
+            let isReturned = row.querySelector(".bg-returned") !== null;
+            let statusMatch = 
+                statusValue === "" || 
+                statusCell.includes(statusValue) || 
+                (statusValue === "returned" && isReturned);
+
+            let userMatch = userValue === "" || userCell.includes(userValue);
+            let productMatch = productValue === "" || productCell.includes(productValue);
+
+            row.style.display = (statusMatch && userMatch && productMatch) ? "" : "none";
+        }
+    }
+
+    if (statusFilter) statusFilter.addEventListener("change", filterTable);
+    if (userSearch) userSearch.addEventListener("keyup", filterTable);
+    if (productSearch) productSearch.addEventListener("keyup", filterTable);
+});
+</script>
 </body>
 </html>

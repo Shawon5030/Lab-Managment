@@ -1,13 +1,155 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <title>New Loan Request</title>
+  <meta charset="utf-8">
+  <title>New Loan Request - Kushtia Polytechnic Institute</title>
+  <!--
+    Note: Email clients strip many CSS rules. Use simple inline styles and table layout for best compatibility.
+  -->
+  <style>
+    /* Fallback for clients that support embedded CSS */
+    .container { max-width: 680px; margin: 0 auto; }
+    .btn { display:inline-block; padding:10px 16px; border-radius:6px; text-decoration:none; font-weight:600; }
+  </style>
 </head>
-<body>
-    <h2>New Loan Request Submitted</h2>
-    <p>Product: {{ product.name }}</p>
-    <p>Requested By: {{ user.username }}</p>
-    <p>Return Date: {{ return_date }}</p>
-    <p>Please review and approve or reject the request.</p>
+<body style="margin:0; padding:20px; background:#f5f7fb; font-family: Arial, Helvetica, sans-serif; color:#333;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+      <td align="center">
+        <table class="container" cellpadding="0" cellspacing="0" border="0" width="680" style="background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 6px 18px rgba(13,38,76,0.08);">
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(90deg,#0d6efd,#00c6ff); padding:18px 24px;">
+              <table width="100%">
+                <tr>
+                  <td style="vertical-align:middle;">
+                    <h2 style="color:#fff; font-size:18px; margin:0;">Kushtia Polytechnic Institute</h2>
+                    <p style="margin:4px 0 0 0; color:rgba(255,255,255,0.95); font-size:13px;">Lab Management System — New Loan Request</p>
+                  </td>
+                  <td style="text-align:right; vertical-align:middle;">
+                    <!-- small logo placeholder -->
+                    <img src="{{ institute_logo_url|default:'' }}" alt="KPI" width="64" style="border-radius:6px; border:1px solid rgba(255,255,255,0.12);"/>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:20px 24px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="padding-bottom:10px;">
+                    <p style="margin:0 0 10px 0; font-size:15px;">
+                      Hello <strong>{{ admin_name|default:"Admin" }}</strong>,<br>
+                      A new loan request has been submitted. Details are below — please review and take action.
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <!-- two-column: product image + meta -->
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                       
+
+                        <!-- Meta -->
+                        <td valign="top" style="padding:4px 0;">
+                          <h3 style="margin:0 0 6px 0; font-size:16px; color:#0d3b66;">{{ product.name }}</h3>
+                          <p style="margin:0 0 6px 0; font-size:13px; color:#556877;">
+                            <strong>Serial:</strong> {{ product.serial_number|default:"N/A" }} &nbsp;|&nbsp;
+                            <strong>Category:</strong> {{ product.category.name|default:"-" }}
+                          </p>
+                          <p style="margin:0 0 6px 0; font-size:13px; color:#556877;">
+                            <strong>Product Lab:</strong> {{ product.lab.name }}
+                          </p>
+                         
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Divider -->
+                <tr>
+                  <td style="padding:14px 0;">
+                    <hr style="border:none; border-top:1px solid #eef3fb; margin:0;" />
+                  </td>
+                </tr>
+
+                <!-- Requester & Request info -->
+                <tr>
+                  <td>
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; color:#34495e;">
+                      <tr>
+                        <td valign="top" style="padding-bottom:8px; width:50%;">
+                          <p style="margin:0 0 6px 0;"><strong>Requested By:</strong></p>
+                          <p style="margin:0 0 3px 0;">{{ user.get_full_name|default:user.username }}</p>
+                          <p style="margin:0 0 3px 0; color:#6b7b8b;">Email: {{ user.email|default:"N/A" }}</p>
+                          <p style="margin:0; color:#6b7b8b;">
+                            {% if user.department %} Dept: {{ user.department }} {% endif %}
+                            {% if user.semester %} • Sem: {{ user.semester }} {% endif %}
+                            {% if user.roll_number %} • Roll: {{ user.roll_number }} {% endif %}
+                          </p>
+                        </td>
+
+                        <td valign="top" style="padding-bottom:8px; width:50%;">
+                          <p style="margin:0 0 6px 0;"><strong>Request Info</strong></p>
+                          <p style="margin:0 0 3px 0;">Request Date: {{ request_date }}</p>
+                          <p style="margin:0 0 3px 0;">Return Date: <strong>{{ return_date }}</strong></p>
+                          <p style="margin:0 0 3px 0;">Status: <strong style="color:#d97706;">Pending</strong></p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+              
+                <!-- Notes / Admin message -->
+                <tr>
+                  <td style="padding-top:16px; color:#495b6a; font-size:13px;">
+                    <p style="margin:0;">
+                      <strong>Note:</strong> If you approve, the product status will change accordingly and notifications will be sent to the requester. If you reject, please include a reason in the admin panel so the requester is notified.
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Divider -->
+                <tr>
+                  <td style="padding:16px 0;">
+                    <hr style="border:none; border-top:1px solid #eef3fb; margin:0;" />
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="padding:12px 0 24px 0;">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="font-size:12px; color:#7b8aa3;">
+                          <p style="margin:0 0 6px 0;">Kushtia Polytechnic Institute • Lab Management System</p>
+                          <p style="margin:0; color:#9aa9bb;">Address: Kushtia Polytechnic Institute, Kushtia, Bangladesh</p>
+                        </td>
+                        <td style="text-align:right; vertical-align:middle;">
+                          <p style="margin:0; font-size:12px; color:#7b8aa3;">Contact: {{ contact_email|default:'admin@kpi.edu.bd' }} · +880-XXXX-XXXX</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+
+        </table>
+
+        <!-- plain-text fallback (visible in clients showing HTML source) -->
+        <div style="display:none; font-size:1px; color:#ffffff;">New Loan Request: {{ product.name }} requested by {{ user.username }}. Return date {{ return_date }}.</div>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>

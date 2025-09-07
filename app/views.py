@@ -32,7 +32,7 @@ def home(request):
 
 
 def lab_product(request, lab_id=None):
-    # Get all labs
+   
     all_lab = Lab.objects.all()
     if not all_lab.exists():
         messages.error(request, "No labs available.")
@@ -59,18 +59,13 @@ def lab_product(request, lab_id=None):
         messages.error(request, "Selected lab does not exist.")
         return redirect('home')
 
-    # Get products for the selected lab
+    
     lab_products = Product.objects.filter(lab=selected_lab)
-
-    # Get categories for the selected lab
     categories = Category.objects.filter(id__in=lab_products.values('category_id')).distinct()
-
-    # Get filter parameters from GET request (if needed for initial page load)
     selected_category = request.GET.get('category', '')
     selected_status = request.GET.get('status', '')
     sort_by = request.GET.get('sort_by', '')
 
-    # Apply filters on server-side (optional)
     if selected_category:
         lab_products = lab_products.filter(category__name=selected_category)
     if selected_status:
@@ -86,17 +81,17 @@ def lab_product(request, lab_id=None):
     available_products = lab_products.filter(status='available').count()
     in_loan_products = lab_products.filter(status='in_loan').count()
 
-    # Category-wise counts
+  
     category_counts = lab_products.values('category__name').annotate(count=Count('id'))
     transfers = ProductTransfer.objects.filter(
         product__in=lab_products,
         return_product=False 
-    ).order_by('product_id', '-transferred_at')  # latest first
+    ).order_by('product_id', '-transferred_at')  
 
-    # Create a dictionary: {product_id: latest_transfer_obj}
+
     transferred_dict = {}
     for t in transfers:
-        if t.product_id not in transferred_dict :  # take latest only
+        if t.product_id not in transferred_dict :  
             transferred_dict[t.product_id] = t
 
    
@@ -392,3 +387,17 @@ def product_transfer(request,product_id):
     labs = Lab.objects.exclude(id=product_lab_id)
     transfers = ProductTransfer.objects.all().order_by('-transferred_at')
     return render(request, 'product_transfer.html' , {"labs":labs,"product":product})
+
+
+def lab_to_lab_transfer(request):
+    transfers = ProductTransfer.objects.select_related(
+        'product', 'from_lab', 'to_lab', 'transferred_by'
+    ).order_by('-transferred_at')  
+
+    labs = Lab.objects.all()
+
+    context = {
+        'transfers': transfers,
+        'labs': labs,
+    }
+    return render(request, 'lab_to_lab_transfer.html', context)

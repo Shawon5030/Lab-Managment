@@ -14,7 +14,8 @@ urlpatterns = [
     path('login/',login_view,name = 'login'),
     path('logout/', user_logout, name='logout'),
     path('your-loan/654xy/loan',your_loan,name = "your_loan"),
-    path("product_transfer/<int:product_id>",product_transfer,name = "product_transfer")
+    path("product_transfer/<int:product_id>",product_transfer,name = "product_transfer"),
+    path('lab/to/lab/',lab_to_lab_transfer,name="lab_to_lab_transfer")
    
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

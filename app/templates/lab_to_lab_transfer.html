@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Transfers</title>
+    <style>
+        /* --- Reset & Font --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: #f4f6f9; padding: 20px; }
+
+        h1 { text-align: center; margin-bottom: 20px; color: #333; }
+
+        /* --- Filter Section --- */
+        .filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .filters input, .filters select {
+            padding: 10px; border-radius: 8px; border: 1px solid #ccc; width: 200px;
+            transition: all 0.3s ease;
+        }
+        .filters input:focus, .filters select:focus {
+            border-color: #007bff; outline: none; box-shadow: 0 0 5px rgba(0,123,255,0.5);
+        }
+
+        /* --- Table --- */
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        thead { background: linear-gradient(90deg, #007bff, #00c6ff); color: #fff; }
+        th, td { padding: 12px 15px; text-align: left; }
+        tbody tr { border-bottom: 1px solid #eee; transition: all 0.3s ease; }
+        tbody tr:hover { background: #f1f9ff; transform: scale(1.01); }
+
+        /* --- Status Badge --- */
+        .badge { padding: 5px 10px; border-radius: 20px; color: #fff; font-size: 0.85em; }
+        .badge-return { background: #ff4d4f; }
+        .badge-normal { background: #28a745; }
+
+        /* --- Responsive --- */
+        @media(max-width: 768px){
+            .filters { flex-direction: column; align-items: flex-start; }
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { display: none; }
+            tbody tr { margin-bottom: 15px; border-bottom: 2px solid #eee; }
+            td { padding-left: 50%; position: relative; }
+            td::before { position: absolute; left: 15px; top: 12px; width: 45%; white-space: nowrap; font-weight: bold; }
+            td:nth-of-type(1)::before { content: "Product"; }
+            td:nth-of-type(2)::before { content: "From Lab"; }
+            td:nth-of-type(3)::before { content: "To Lab"; }
+            td:nth-of-type(4)::before { content: "Quantity"; }
+            td:nth-of-type(5)::before { content: "Transferred By"; }
+            td:nth-of-type(6)::before { content: "Transferred At"; }
+            td:nth-of-type(7)::before { content: "Return Status"; }
+        }
+    </style>
+</head>
+<body>
+     {% include 'navbar.html' %}
+<h1 style="margin:1rem 0">Product Transfer Records</h1>
+
+<div class="filters">
+    <input type="text" id="searchInput" placeholder="Search by Product or User...">
+    <select id="fromLabFilter">
+        <option value="">Filter by From Lab</option>
+        {% for lab in labs %}
+            <option value="{{ lab.name }}">{{ lab.name }}</option>
+        {% endfor %}
+    </select>
+    <select id="toLabFilter">
+        <option value="">Filter by To Lab</option>
+        {% for lab in labs %}
+            <option value="{{ lab.name }}">{{ lab.name }}</option>
+        {% endfor %}
+    </select>
+    <button id="resetBtn" style="padding:10px 15px; border-radius:8px; border:none; background:#007bff; color:#fff; cursor:pointer;">Reset Filters</button>
+</div>
+
+<table id="transferTable">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>From Lab</th>
+            <th>To Lab</th>
+            <th>Quantity</th>
+            <th>Transferred By</th>
+            <th>Transferred At</th>
+            <th>Return Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transfer in transfers %}
+        <tr>
+            <td>{{ transfer.product.name }}</td>
+            <td>{{ transfer.from_lab.name }}</td>
+            <td>{{ transfer.to_lab.name }}</td>
+            <td>{{ transfer.quantity }}</td>
+            <td>{{ transfer.transferred_by.username  }}</td>
+            <td>{{ transfer.transferred_at|date:"Y-m-d H:i" }}</td>
+            <td>
+                {% if transfer.return_product %}
+                    <span class="badge badge-return">Returned</span>
+                {% else %}
+                    <span class="badge badge-normal">Transferred</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+const searchInput = document.getElementById("searchInput");
+const fromLabFilter = document.getElementById("fromLabFilter");
+const toLabFilter = document.getElementById("toLabFilter");
+const resetBtn = document.getElementById("resetBtn");
+const table = document.getElementById("transferTable");
+const rows = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+
+function filterTable() {
+    const searchValue = searchInput.value.toLowerCase();
+    const fromLabValue = fromLabFilter.value.toLowerCase();
+    const toLabValue = toLabFilter.value.toLowerCase();
+
+    for (let row of rows) {
+        const product = row.cells[0].innerText.toLowerCase();
+        const fromLab = row.cells[1].innerText.toLowerCase();
+        const toLab = row.cells[2].innerText.toLowerCase();
+        const user = row.cells[4].innerText.toLowerCase();
+
+        const matchesSearch = product.includes(searchValue) || user.includes(searchValue);
+        const matchesFromLab = !fromLabValue || fromLab.includes(fromLabValue);
+        const matchesToLab = !toLabValue || toLab.includes(toLabValue);
+
+        row.style.display = (matchesSearch && matchesFromLab && matchesToLab) ? "" : "none";
+    }
+}
+
+// Event listeners
+searchInput.addEventListener("input", filterTable);
+fromLabFilter.addEventListener("change", filterTable);
+toLabFilter.addEventListener("change", filterTable);
+resetBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    fromLabFilter.value = "";
+    toLabFilter.value = "";
+    filterTable();
+});
+</script>
+
+</body>
+</html>
