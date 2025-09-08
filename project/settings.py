@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-qi@7pac66ftz1w07c7t8&m2mx)=zleyf*!6o%-%6ii+w)jvo$7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -120,6 +120,9 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']  # Your app's static files
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # Directory where collectstatic will gather all static files
+
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
