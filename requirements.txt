@@ -4,3 +4,5 @@ psycopg2-binary==2.9.6
 whitenoise==6.5.0
 openpyxl 
 weasyprint
+pandas
+openpyxl

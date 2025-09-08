@@ -31,6 +31,9 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.db.models import Count
 from .models import Lab, Product, Category
+import pandas as pd
+from django.http import HttpResponse
+import csv
 
 logger = logging.getLogger(__name__)
 
@@ -444,22 +447,9 @@ def lab_to_lab_transfer(request):
 
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'password_reset.html'
-    email_template_name = 'registration/password_reset_email.txt'
+    email_template_name = 'registration/password_reset_email.txt'   # plain text fallback
     subject_template_name = 'registration/password_reset_subject.txt'
     html_email_template_name = 'registration/password_reset_email.html'
-
-    def form_valid(self, form):
-        # Save email in session so it can be resent
-        email = form.cleaned_data.get("email")
-        if email:
-            self.request.session["reset_email"] = email
-        logger.info("Password reset form is valid. Sending email...")
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        logger.error("Password reset form is invalid.")
-        return super().form_invalid(form)
-    
     
 class ResendPasswordResetView(PasswordResetDoneView):
     def get(self, request, *args, **kwargs):
@@ -471,7 +461,8 @@ class ResendPasswordResetView(PasswordResetDoneView):
                 form.save(
                     request=request,
                     use_https=request.is_secure(),
-                    email_template_name="registration/password_reset_email.html",
+                    email_template_name="registration/password_reset_email.txt",  # fallback
+                    html_email_template_name="registration/password_reset_email.html",  # ✅ main HTML
                     subject_template_name="registration/password_reset_subject.txt",
                 )
                 messages.success(request, "We’ve resent the password reset email.")
@@ -482,3 +473,109 @@ class ResendPasswordResetView(PasswordResetDoneView):
             return redirect("password_reset")
 
         return redirect("password_reset_done")
+
+def export_loans(request):
+    # Fetch loan requests from the database
+    loans = LoanRequest.objects.select_related('product', 'requested_by').all()
+
+    # Prepare data for the Excel file
+    data = []
+    for loan in loans:
+        data.append({
+            'Product Name': loan.product.name,
+            'Lab': loan.product.lab.name,
+            'Requester': loan.requested_by.username,
+            'Request Date': loan.request_date.strftime('%Y-%m-%d'),
+            'Return Date': loan.return_date.strftime('%Y-%m-%d') if loan.return_date else 'N/A',
+            'Status': loan.status,
+            'Rejection Reason': loan.rejection_reason if loan.status == 'rejected' else 'N/A',
+        })
+
+    # Create a DataFrame using pandas
+    df = pd.DataFrame(data)
+
+    # Generate the Excel file
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="loan_requests.xlsx"'
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Loan Requests')
+
+    return response
+
+def export_approved_loans(request):
+    # Fetch approved loan requests
+    loans = LoanRequest.objects.filter(status='approved').select_related('product', 'requested_by')
+
+    # Prepare data for the Excel file
+    data = []
+    for loan in loans:
+        data.append({
+            'Product Name': loan.product.name,
+            'Lab': loan.product.lab.name,
+            'Requester': loan.requested_by.username,
+            'Request Date': loan.request_date.strftime('%Y-%m-%d'),
+            'Return Date': loan.return_date.strftime('%Y-%m-%d') if loan.return_date else 'N/A',
+            'Status': loan.status,
+        })
+
+    # Create a DataFrame using pandas
+    df = pd.DataFrame(data)
+
+    # Generate the Excel file
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="approved_loans.xlsx"'
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Approved Loans')
+
+    return response
+
+
+def export_rejected_loans(request):
+    # Fetch rejected loan requests
+    loans = LoanRequest.objects.filter(status='rejected').select_related('product', 'requested_by')
+
+    # Prepare data for the Excel file
+    data = []
+    for loan in loans:
+        data.append({
+            'Product Name': loan.product.name,
+            'Lab': loan.product.lab.name,
+            'Requester': loan.requested_by.username,
+            'Request Date': loan.request_date.strftime('%Y-%m-%d'),
+            'Rejection Reason': loan.rejection_reason,
+            'Status': loan.status,
+        })
+
+    # Create a DataFrame using pandas
+    df = pd.DataFrame(data)
+
+    # Generate the Excel file
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="rejected_loans.xlsx"'
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Rejected Loans')
+
+    return response
+
+def export_transfers(request):
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="transfers.csv"'
+
+    writer = csv.writer(response)
+    # Write the header row
+    writer.writerow(['Product', 'From Lab', 'To Lab', 'Quantity', 'Transferred By', 'Transferred At', 'Return Status'])
+
+    # Write data rows
+    for transfer in ProductTransfer.objects.all():
+        writer.writerow([
+            transfer.product.name,
+            transfer.from_lab.name,
+            transfer.to_lab.name,
+            transfer.quantity,
+            transfer.transferred_by.username,
+            transfer.transferred_at.strftime('%Y-%m-%d %H:%M'),
+            'Returned' if transfer.return_product else 'Transferred'
+        ])
+
+    return response

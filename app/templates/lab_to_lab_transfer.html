@@ -55,6 +55,12 @@
      {% include 'navbar.html' %}
 <h1 style="margin:1rem 0">Product Transfer Records</h1>
 
+<div class="d-flex gap-2">
+    <a href="{% url 'export_transfers' %}" class="btn btn-sm btn-light">
+        <i class="bi bi-download me-1"></i> Export Transfers
+    </a>
+</div>
+
 <div class="filters">
     <input type="text" id="searchInput" placeholder="Search by Product or User...">
     <select id="fromLabFilter">

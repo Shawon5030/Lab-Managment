@@ -16,10 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
+from app.views import export_loans, export_approved_loans, export_rejected_loans  # Import new views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('app.urls')),
-   
+    path('export-loans/', export_loans, name='export_loans'),
+    path('export-approved-loans/', export_approved_loans, name='export_approved_loans'),  # Add this line
+    path('export-rejected-loans/', export_rejected_loans, name='export_rejected_loans'),  # Add this line
 ]

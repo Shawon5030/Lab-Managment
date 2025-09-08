@@ -18,6 +18,7 @@ urlpatterns = [
     path('your-loan/654xy/loan',your_loan,name = "your_loan"),
     path("product_transfer/<int:product_id>",product_transfer,name = "product_transfer"),
     path('lab/to/lab/',lab_to_lab_transfer,name="lab_to_lab_transfer"),
+    path('export-transfers/', export_transfers, name='export_transfers'),
     
     path('password_reset/',  CustomPasswordResetView.as_view(),  name='password_reset'),
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'), name='password_reset_done'),

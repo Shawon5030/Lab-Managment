@@ -91,10 +91,16 @@ body { font-family: 'Inter', sans-serif; background-color: #f5f7fb; color: #333;
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span><i class="bi bi-table me-2"></i>Loan Requests</span>
-                    <div>
-                        <button class="btn btn-sm btn-light">
-                            <i class="bi bi-download me-1"></i> Export
-                        </button>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'export_loans' %}" class="btn btn-sm btn-light">
+                            <i class="bi bi-download me-1"></i> Export All
+                        </a>
+                        <a href="{% url 'export_approved_loans' %}" class="btn btn-sm btn-success">
+                            <i class="bi bi-check-circle me-1"></i> Export Approved
+                        </a>
+                        <a href="{% url 'export_rejected_loans' %}" class="btn btn-sm btn-danger">
+                            <i class="bi bi-x-circle me-1"></i> Export Rejected
+                        </a>
                     </div>
                 </div>
                 <div class="card-body">
