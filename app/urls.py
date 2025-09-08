@@ -17,5 +17,8 @@ urlpatterns = [
     path("product_transfer/<int:product_id>",product_transfer,name = "product_transfer"),
     path('lab/to/lab/',lab_to_lab_transfer,name="lab_to_lab_transfer")
    
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]  
 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
