@@ -11,6 +11,16 @@ from django.shortcuts import render, redirect , get_object_or_404
 from django.core.mail import EmailMessage
 from django.db.models import Count
 from datetime import datetime
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.views import PasswordResetDoneView
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.contrib.auth.views import PasswordResetView
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView
+from django.shortcuts import redirect
+from django.contrib import messages
+import logging
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import user_passes_test
 import threading
@@ -163,22 +173,49 @@ def load_request(request, product_id):
         product.in_stock = False
         product.save()
 
-        from_email = settings.EMAIL_HOST_USER 
-        admin_emails = [ 'haquemahmudul500@gmail.com']
+        from_email = settings.EMAIL_HOST_USER
+        admin_emails = ['haquemahmudul500@gmail.com']
         user_email = request.user.email
 
-        admin_html = render_to_string('emails/admin_email.html', {
-            'product': product,
-            'user': request.user,
-            'return_date': return_date
-        })
+        # Prepare detailed context for emails
+        email_context = {
+            'product': {
+                'name': product.name,
+                'description': product.description,
+                'category': product.category.name,
+                'lab': product.lab.name,
+                'status': product.status,
+                'serial_number': product.serial_number,
+                'price': product.price,
+                'base_price': product.base_price
+            },
+            'loan_request': {
+                'request_date': loan_request.request_date,
+                'return_date': loan_request.return_date,
+                'status': loan_request.status,
+                'rejection_reason': loan_request.rejection_reason
+            },
+            'requested_by': {
+                'username': request.user.username,
+                'email': request.user.email,
+                'first_name': request.user.first_name,
+                'last_name': request.user.last_name,
+                'is_student': request.user.is_student,
+                'is_teacher': request.user.is_teacher,
+                'is_hod': request.user.is_hod,
+                'semester': request.user.semester,
+                'department': request.user.department,
+                'roll_number': request.user.roll_number
+            }
+        }
 
-        user_html = render_to_string('emails/user_email.html', {
-            'product': product,
-            'user': request.user,
-            'return_date': return_date
-        })
+        # Admin email
+        admin_html = render_to_string('emails/admin_email.html', email_context)
 
+        # User email
+        user_html = render_to_string('emails/user_email.html', email_context)
+
+        # Send emails in background threads
         threading.Thread(target=send_email, args=(f"New Loan Request: {product.name}", admin_html, admin_emails, from_email)).start()
         threading.Thread(target=send_email, args=(f"Your Loan Request Submitted: {product.name}", user_html, [user_email], from_email)).start()
 
@@ -401,3 +438,47 @@ def lab_to_lab_transfer(request):
         'labs': labs,
     }
     return render(request, 'lab_to_lab_transfer.html', context)
+
+
+
+
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'password_reset.html'
+    email_template_name = 'registration/password_reset_email.txt'
+    subject_template_name = 'registration/password_reset_subject.txt'
+    html_email_template_name = 'registration/password_reset_email.html'
+
+    def form_valid(self, form):
+        # Save email in session so it can be resent
+        email = form.cleaned_data.get("email")
+        if email:
+            self.request.session["reset_email"] = email
+        logger.info("Password reset form is valid. Sending email...")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        logger.error("Password reset form is invalid.")
+        return super().form_invalid(form)
+    
+    
+class ResendPasswordResetView(PasswordResetDoneView):
+    def get(self, request, *args, **kwargs):
+        email = request.session.get("reset_email")
+
+        if email:
+            form = PasswordResetForm({"email": email})
+            if form.is_valid():
+                form.save(
+                    request=request,
+                    use_https=request.is_secure(),
+                    email_template_name="registration/password_reset_email.html",
+                    subject_template_name="registration/password_reset_subject.txt",
+                )
+                messages.success(request, "We’ve resent the password reset email.")
+            else:
+                messages.error(request, "Invalid email address.")
+        else:
+            messages.error(request, "No email stored. Please enter your email again.")
+            return redirect("password_reset")
+
+        return redirect("password_reset_done")

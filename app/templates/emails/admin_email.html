@@ -1,155 +1,177 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8">
-  <title>New Loan Request - Kushtia Polytechnic Institute</title>
-  <!--
-    Note: Email clients strip many CSS rules. Use simple inline styles and table layout for best compatibility.
-  -->
-  <style>
-    /* Fallback for clients that support embedded CSS */
-    .container { max-width: 680px; margin: 0 auto; }
-    .btn { display:inline-block; padding:10px 16px; border-radius:6px; text-decoration:none; font-weight:600; }
-  </style>
+    <meta charset="UTF-8">
+    <title>New Loan Request</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            line-height: 1.6; 
+            color: #333333;
+            background-color: #f7f9fc;
+            margin: 0;
+            padding: 0;
+        }
+        .container { 
+            max-width: 650px; 
+            margin: 20px auto; 
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #4b77f4;
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 30px;
+        }
+        h2 {
+            color: #4b77f4;
+            font-size: 20px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8f0fe;
+            font-weight: 600;
+        }
+        h3 {
+            color: #4b77f4;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        p {
+            margin: 0 0 15px 0;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 15px 0 25px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 0 1px #e1e8f0;
+        }
+        th, td { 
+            text-align: left; 
+            padding: 12px 15px; 
+            border-bottom: 1px solid #e1e8f0; 
+        }
+        th { 
+            background-color: #f0f5ff; 
+            color: #4b77f4;
+            font-weight: 600;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .footer { 
+            margin-top: 30px;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.85em; 
+            color: #8c8c8c;
+            background-color: #f7f9fc;
+            border-top: 1px solid #e8f0fe;
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.85em;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        .badge-pending {
+            background-color: #ffeed9;
+            color: #e67700;
+        }
+        .badge-approved {
+            background-color: #ddffd7;
+            color: #0c7c0c;
+        }
+        .badge-rejected {
+            background-color: #ffdede;
+            color: #d13434;
+        }
+        .highlight {
+            background-color: #f0f5ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+    </style>
 </head>
-<body style="margin:0; padding:20px; background:#f5f7fb; font-family: Arial, Helvetica, sans-serif; color:#333;">
-  <table cellpadding="0" cellspacing="0" border="0" width="100%">
-    <tr>
-      <td align="center">
-        <table class="container" cellpadding="0" cellspacing="0" border="0" width="680" style="background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 6px 18px rgba(13,38,76,0.08);">
-          <!-- Header -->
-          <tr>
-            <td style="background:linear-gradient(90deg,#0d6efd,#00c6ff); padding:18px 24px;">
-              <table width="100%">
-                <tr>
-                  <td style="vertical-align:middle;">
-                    <h2 style="color:#fff; font-size:18px; margin:0;">Kushtia Polytechnic Institute</h2>
-                    <p style="margin:4px 0 0 0; color:rgba(255,255,255,0.95); font-size:13px;">Lab Management System — New Loan Request</p>
-                  </td>
-                  <td style="text-align:right; vertical-align:middle;">
-                    <!-- small logo placeholder -->
-                    <img src="{{ institute_logo_url|default:'' }}" alt="KPI" width="64" style="border-radius:6px; border:1px solid rgba(255,255,255,0.12);"/>
-                  </td>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>KPI Lab-Management </h2>
+            <h4>New Loan Request Submitted</h4>
+        </div>
+        
+        <div class="content">
+            <p>A new loan request has been submitted by <strong>{{ requested_by.username }}</strong>. Here are the details:</p>
+            
+            <h2>Product Details</h2>
+            <table>
+                <tr><th>Name</th><td>{{ product.name }}</td></tr>
+                <tr><th>Description</th><td>{{ product.description }}</td></tr>
+                <tr><th>Category</th><td>{{ product.category }}</td></tr>
+                <tr><th>Lab</th><td>{{ product.lab }}</td></tr>
+                <tr><th>Status</th><td>{{ product.status }}</td></tr>
+                <tr><th>Serial Number</th><td>{{ product.serial_number }}</td></tr>
+                <tr><th>Price</th><td>{{ product.price }}</td></tr>
+                <tr><th>Base Price</th><td>{{ product.base_price }}</td></tr>
+            </table>
+
+            <h2>Requester Information</h2>
+            <table>
+                <tr><th>Username</th><td>{{ requested_by.username }}</td></tr>
+                <tr><th>Email</th><td>{{ requested_by.email }}</td></tr>
+                <tr><th>First Name</th><td>{{ requested_by.first_name }}</td></tr>
+                <tr><th>Last Name</th><td>{{ requested_by.last_name }}</td></tr>
+                <tr><th>Role</th>
+                    <td>
+                        {% if requested_by.is_teacher %}Teacher{% elif requested_by.is_student %}Student{% elif requested_by.is_hod %}HOD{% else %}Other{% endif %}
+                    </td>
                 </tr>
-              </table>
-            </td>
-          </tr>
+                <tr><th>Semester</th><td>{{ requested_by.semester }}</td></tr>
+                <tr><th>Department</th><td>{{ requested_by.department }}</td></tr>
+                <tr><th>Roll Number</th><td>{{ requested_by.roll_number }}</td></tr>
+            </table>
 
-          <!-- Body -->
-          <tr>
-            <td style="padding:20px 24px;">
-              <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td style="padding-bottom:10px;">
-                    <p style="margin:0 0 10px 0; font-size:15px;">
-                      Hello <strong>{{ admin_name|default:"Admin" }}</strong>,<br>
-                      A new loan request has been submitted. Details are below — please review and take action.
-                    </p>
-                  </td>
+            <h2>Loan Request Details</h2>
+            <table>
+                <tr><th>Request Date</th><td>{{ loan_request.request_date }}</td></tr>
+                <tr><th>Return Date</th><td>{{ loan_request.return_date }}</td></tr>
+                <tr><th>Status</th>
+                    <td>
+                        {{ loan_request.status }}
+                        {% if loan_request.status == "Pending" %}
+                            <span class="badge badge-pending">Pending</span>
+                        {% elif loan_request.status == "Approved" %}
+                            <span class="badge badge-approved">Approved</span>
+                        {% elif loan_request.status == "Rejected" %}
+                            <span class="badge badge-rejected">Rejected</span>
+                        {% endif %}
+                    </td>
                 </tr>
+                <tr><th>Rejection Reason</th><td>{{ loan_request.rejection_reason|default:"N/A" }}</td></tr>
+            </table>
+        </div>
 
-                <tr>
-                  <td>
-                    <!-- two-column: product image + meta -->
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                      <tr>
-                       
-
-                        <!-- Meta -->
-                        <td valign="top" style="padding:4px 0;">
-                          <h3 style="margin:0 0 6px 0; font-size:16px; color:#0d3b66;">{{ product.name }}</h3>
-                          <p style="margin:0 0 6px 0; font-size:13px; color:#556877;">
-                            <strong>Serial:</strong> {{ product.serial_number|default:"N/A" }} &nbsp;|&nbsp;
-                            <strong>Category:</strong> {{ product.category.name|default:"-" }}
-                          </p>
-                          <p style="margin:0 0 6px 0; font-size:13px; color:#556877;">
-                            <strong>Product Lab:</strong> {{ product.lab.name }}
-                          </p>
-                         
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-                <!-- Divider -->
-                <tr>
-                  <td style="padding:14px 0;">
-                    <hr style="border:none; border-top:1px solid #eef3fb; margin:0;" />
-                  </td>
-                </tr>
-
-                <!-- Requester & Request info -->
-                <tr>
-                  <td>
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; color:#34495e;">
-                      <tr>
-                        <td valign="top" style="padding-bottom:8px; width:50%;">
-                          <p style="margin:0 0 6px 0;"><strong>Requested By:</strong></p>
-                          <p style="margin:0 0 3px 0;">{{ user.get_full_name|default:user.username }}</p>
-                          <p style="margin:0 0 3px 0; color:#6b7b8b;">Email: {{ user.email|default:"N/A" }}</p>
-                          <p style="margin:0; color:#6b7b8b;">
-                            {% if user.department %} Dept: {{ user.department }} {% endif %}
-                            {% if user.semester %} • Sem: {{ user.semester }} {% endif %}
-                            {% if user.roll_number %} • Roll: {{ user.roll_number }} {% endif %}
-                          </p>
-                        </td>
-
-                        <td valign="top" style="padding-bottom:8px; width:50%;">
-                          <p style="margin:0 0 6px 0;"><strong>Request Info</strong></p>
-                          <p style="margin:0 0 3px 0;">Request Date: {{ request_date }}</p>
-                          <p style="margin:0 0 3px 0;">Return Date: <strong>{{ return_date }}</strong></p>
-                          <p style="margin:0 0 3px 0;">Status: <strong style="color:#d97706;">Pending</strong></p>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-              
-                <!-- Notes / Admin message -->
-                <tr>
-                  <td style="padding-top:16px; color:#495b6a; font-size:13px;">
-                    <p style="margin:0;">
-                      <strong>Note:</strong> If you approve, the product status will change accordingly and notifications will be sent to the requester. If you reject, please include a reason in the admin panel so the requester is notified.
-                    </p>
-                  </td>
-                </tr>
-
-                <!-- Divider -->
-                <tr>
-                  <td style="padding:16px 0;">
-                    <hr style="border:none; border-top:1px solid #eef3fb; margin:0;" />
-                  </td>
-                </tr>
-
-                <!-- Footer -->
-                <tr>
-                  <td style="padding:12px 0 24px 0;">
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                      <tr>
-                        <td style="font-size:12px; color:#7b8aa3;">
-                          <p style="margin:0 0 6px 0;">Kushtia Polytechnic Institute • Lab Management System</p>
-                          <p style="margin:0; color:#9aa9bb;">Address: Kushtia Polytechnic Institute, Kushtia, Bangladesh</p>
-                        </td>
-                        <td style="text-align:right; vertical-align:middle;">
-                          <p style="margin:0; font-size:12px; color:#7b8aa3;">Contact: {{ contact_email|default:'admin@kpi.edu.bd' }} · +880-XXXX-XXXX</p>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-
-              </table>
-            </td>
-          </tr>
-
-        </table>
-
-        <!-- plain-text fallback (visible in clients showing HTML source) -->
-        <div style="display:none; font-size:1px; color:#ffffff;">New Loan Request: {{ product.name }} requested by {{ user.username }}. Return date {{ return_date }}.</div>
-      </td>
-    </tr>
-  </table>
+        <div class="footer">
+            <p>This is an automated message. Please review the loan request in your admin panel.</p>
+        </div>
+    </div>
 </body>
 </html>

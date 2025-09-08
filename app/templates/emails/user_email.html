@@ -1,12 +1,160 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Your Loan Request</title>
+    <meta charset="UTF-8">
+    <title>Loan Request Submitted</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            line-height: 1.6; 
+            color: #333333; 
+            background-color: #f7f9fc;
+            margin: 0;
+            padding: 20px;
+        }
+        .container { 
+            max-width: 600px; 
+            margin: auto; 
+            background: #ffffff; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eaeaea;
+            margin-bottom: 25px;
+        }
+        h2 { 
+            color: #4b77f4; 
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .icon-circle {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            line-height: 60px;
+            text-align: center;
+            background-color: #4b77f4;
+            color: white;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        p { 
+            margin-bottom: 16px;
+        }
+        .highlight {
+            color: #4b77f4;
+            font-weight: 600;
+        }
+        .section-title {
+            color: #4b77f4;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 25px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e8f0fe;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 15px; 
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        th, td { 
+            text-align: left; 
+            padding: 12px 15px; 
+        }
+        th { 
+            background-color: #4b77f4; 
+            color: white;
+            font-weight: 500;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9ff;
+        }
+        tr {
+            border-bottom: 1px solid #eaeaea;
+        }
+        tr:last-child {
+            border-bottom: none;
+        }
+        .footer { 
+            margin-top: 30px; 
+            font-size: 0.9em; 
+            color: #777; 
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eaeaea;
+        }
+        .status-pill {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+        .status-pending {
+            background-color: #fff8e6;
+            color: #e6b400;
+        }
+        .status-approved {
+            background-color: #e6f7ee;
+            color: #00c853;
+        }
+        .status-rejected {
+            background-color: #fee6e6;
+            color: #f44336;
+        }
+    </style>
 </head>
 <body>
-    <h2>Your Loan Request Submitted</h2>
-    <p>Product: {{ product.name }}</p>
-    <p>Return Date: {{ return_date }}</p>
-    <p>We will notify you once an admin approves or rejects your request.</p>
+    <div class="container">
+        <div class="header">
+            <div class="icon-circle">✓</div>
+            <h2>KPI Lab-Management </h2>
+            <h5>Your Loan Request has been Submitted!</h5>
+        </div>
+        
+        <p>Hi <strong class="highlight">{{ requested_by.first_name }}</strong>,</p>
+        <p>Your loan request for the following product has been submitted successfully. Here are the details:</p>
+        
+        <div class="section-title">Product Details</div>
+        <table>
+            <tr><th>Name</th><td>{{ product.name }}</td></tr>
+            <tr><th>Description</th><td>{{ product.description }}</td></tr>
+            <tr><th>Category</th><td>{{ product.category }}</td></tr>
+            <tr><th>Lab</th><td>{{ product.lab }}</td></tr>
+            <tr><th>Status</th><td>{{ product.status }}</td></tr>
+            <tr><th>Serial Number</th><td>{{ product.serial_number }}</td></tr>
+        </table>
+
+        <div class="section-title">Loan Request Details</div>
+        <table>
+            <tr><th>Request Date</th><td>{{ loan_request.request_date }}</td></tr>
+            <tr><th>Return Date</th><td>{{ loan_request.return_date }}</td></tr>
+            <tr><th>Status</th>
+                <td>
+                    {% if loan_request.status == "Pending" %}
+                    <span class="status-pill status-pending">{{ loan_request.status }}</span>
+                    {% elif loan_request.status == "Approved" %}
+                    <span class="status-pill status-approved">{{ loan_request.status }}</span>
+                    {% elif loan_request.status == "Rejected" %}
+                    <span class="status-pill status-rejected">{{ loan_request.status }}</span>
+                    {% else %}
+                    {{ loan_request.status }}
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+
+        <p class="footer">You will be notified once the admin approves or rejects your request.</p>
+    </div>
 </body>
 </html>

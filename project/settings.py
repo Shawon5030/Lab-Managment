@@ -88,17 +88,13 @@ DATABASES = {
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
+
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 8},
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'app.validators.NumberSpecialCharValidator',  # add your validator
     },
 ]
 
@@ -132,14 +128,12 @@ MEDIA_ROOT = BASE_DIR/'media'
 STATIC_ROOT = 'staticfiles'
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = ('haquemahmudul600@gmail.com')
-EMAIL_HOST_PASSWORD = 'blqxpwlctdqoxkxe'
+EMAIL_HOST_PASSWORD = 'ibrn dzuc rrkq brjv'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
