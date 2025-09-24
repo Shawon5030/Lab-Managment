@@ -951,23 +951,27 @@
                 {% if product.id in transferred_dict %}
                 {% with transfer=transferred_dict|dict_get:product.id %}
               
-
+                {% if request.user.is_hod  %}
                 <form  method="post">
                     {% csrf_token %}
                     <button type="submit" class="badge bg-warning" name="transfer_id" value="{{ transfer.id }}"  title="From: {{ transfer.from_lab.name }} | To: {{ transfer.to_lab.name }} | Date: {{ transfer.transferred_at|date:'Y-m-d H:i' }}">
-                        <i  class="fas fa-exchange-alt"></i> Transferred-{{transfer.id}} 
+                        <i  class="fas fa-exchange-alt"></i> Transferred
                     </button>
                 </form>
+                {%endif%}
               
                     
                  {% endwith %}
                 {% else  %}
+
                 {% if product.status == "available" %}
+                {% if request.user.is_hod  %}
                 <form action="{% url 'product_transfer' product.id %}" >
                     <button type="submit" class="badge bg-warning" >
                         <i  class="fas fa-exchange-alt"></i> apply Transferred
                     </button>
                 </form>
+                {%endif%}
                 {% endif %}
                  {% endif %}
                 
@@ -990,9 +994,21 @@
                 {% elif product.status == "in_loan" %}
                 <div class="action-btn text-primary"><i class="fas fa-hand-holding-usd"></i> In Loan</div>
                  {% else %} 
+                                
+                {% if product.id in transferred_dict %}
+                {% with transfer=transferred_dict|dict_get:product.id %}
+              
                  <div class="action-btn available-btn"> 
+                     <a ><i class="fas fa-check-circle" disabled></i>Transferred</a>
+                 </div>
+                {% endwith %}
+                
+                {% else  %}
+
+                <div class="action-btn available-btn"> 
                      <a href="{% url 'load_request' product.id %}"><i class="fas fa-check-circle"></i> Available</a>
                  </div>
+                {% endif%}
                  {% endif %}
             </div>
         </div>

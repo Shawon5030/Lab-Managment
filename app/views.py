@@ -34,6 +34,9 @@ from .models import Lab, Product, Category
 import pandas as pd
 from django.http import HttpResponse
 import csv
+from django.contrib.auth.views import PasswordChangeView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
 
 logger = logging.getLogger(__name__)
 
@@ -579,3 +582,11 @@ def export_transfers(request):
         ])
 
     return response
+
+
+
+
+
+class MyPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+    template_name = 'password_change/password_change.html'
+    success_url = reverse_lazy('password_change_done')
