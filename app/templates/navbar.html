@@ -1,307 +1,292 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
 <style>
-    :root {
-        
-        --primary-dark: #0f172a;
-        --primary-light: #1e293b;
-        --accent: #3b82f6;
-        --accent-hover: #2563eb;
-        --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-        --navbar-gradient: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-        --text-dark: #1e293b;
-        --text-light: rgba(255, 255, 255, 0.95);
-        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        --glass-bg: rgba(255, 255, 255, 0.1);
-        --glass-border: rgba(255, 255, 255, 0.15);
-        --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-    }
-    
-    body {
-        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        min-height: 100vh;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .navbar {
-        background: white; /* Initially white */
-        color: var(--text-dark);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        padding: 0.6rem 1rem;
-        transition: var(--transition);
-    }
-    
-    .navbar.scrolled {
-        background: var(--navbar-gradient); /* Change to gradient color on scroll */
-        color: var(--text-light);
-        border-bottom: none;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-    
-    .navbar-brand {
-        font-weight: 800;
-        background: var(--accent-gradient);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent !important;
-        display: flex;
-        align-items: center;
-        transition: var(--transition);
-        font-size: 1.6rem;
-        padding: 0.5rem 0;
-        letter-spacing: -0.5px;
-    }
-    
-    .navbar-brand i {
-        margin-right: 10px;
-        font-size: 1.9rem;
-        transition: var(--transition);
-        background: var(--accent-gradient);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-    }
-    
-    .navbar-brand:hover {
-        transform: translateY(-2px);
-        text-shadow: 0 2px 12px rgba(59, 130, 246, 0.4);
-    }
-    
-    .navbar-brand:hover i {
-        transform: rotate(15deg) scale(1.1);
-    }
-    
-    .navbar.scrolled .navbar-brand {
-        color: white !important; /* Change brand color on scroll */
-    }
-    
-    .nav-item {
-        margin: 0 4px;
-        position: relative;
-    }
-    
-    .nav-link {
-        color: var(--text-dark) !important;
-        font-weight: 500;
-        padding: 0.8rem 1.2rem !important;
-        border-radius: 12px;
-        transition: var(--transition);
-        display: flex;
-        align-items: center;
-        position: relative;
-        overflow: hidden;
-        background: rgba(255, 255, 255, 0.05);
-        margin: 0 2px;
-    }
-    
-    .navbar.scrolled .nav-link {
-        color: var(--text-light) !important;
-    }
-    
-    .nav-link i {
-        margin-right: 8px;
-        font-size: 1.2rem;
-        transition: var(--transition);
-    }
-    
-    .nav-link::before {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background: var(--accent-gradient);
-        transform: translateY(5px);
-        opacity: 0;
-        transition: var(--transition);
-        border-radius: 4px 4px 0 0;
-    }
-    
-    .nav-link:hover, .nav-link.active {
-        color: white !important;
-        background-color: rgba(59, 130, 246, 0.15);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-    
-    .nav-link:hover::before, .nav-link.active::before {
-        transform: translateY(0);
-        opacity: 1;
-    }
-    
-    .nav-link:hover i, .nav-link.active i {
-        transform: scale(1.2);
-    }
-    
-    .navbar-toggler {
-        border: none;
-        color: var(--text-light) !important;
-        padding: 0.5rem;
-        transition: var(--transition);
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-    }
-    
-    .navbar-toggler:focus {
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-    }
-    
-    .navbar-toggler:hover {
-        background-color: rgba(59, 130, 246, 0.2);
-        transform: rotate(90deg);
-    }
-    
+:root {
+    --primary-dark: #0f172a;
+    --primary-light: #1e293b;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+    --navbar-gradient: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    --text-dark: #1e293b;
+    --text-light: rgba(255, 255, 255, 0.95);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar {
+    background: white;
+    color: var(--text-dark);
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 0.6rem 1rem;
+    transition: var(--transition);
+}
+
+.navbar.scrolled {
+    background: var(--navbar-gradient);
+    color: var(--text-light);
+    border-bottom: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.navbar-brand {
+    font-weight: 800;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+    display: flex;
+    align-items: center;
+    transition: var(--transition);
+    font-size: 1.6rem;
+    padding: 0.5rem 0;
+    letter-spacing: -0.5px;
+}
+
+.navbar-brand i {
+    margin-right: 10px;
+    font-size: 1.9rem;
+    transition: var(--transition);
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.navbar-brand:hover {
+    transform: translateY(-2px);
+    text-shadow: 0 2px 12px rgba(59,130,246,0.4);
+}
+
+.navbar-brand:hover i {
+    transform: rotate(15deg) scale(1.1);
+}
+
+.navbar.scrolled .navbar-brand {
+    color: white !important;
+}
+
+.nav-item {
+    margin: 0 4px;
+    position: relative;
+}
+
+.nav-link {
+    color: var(--text-dark) !important;
+    font-weight: 500;
+    padding: 0.8rem 1.2rem !important;
+    border-radius: 12px;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    background: rgba(255,255,255,0.05);
+    margin: 0 2px;
+}
+
+.navbar.scrolled .nav-link {
+    color: var(--text-light) !important;
+}
+
+.nav-link i {
+    margin-right: 8px;
+    font-size: 1.2rem;
+    transition: var(--transition);
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--accent-gradient);
+    transform: translateY(5px);
+    opacity: 0;
+    transition: var(--transition);
+    border-radius: 4px 4px 0 0;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: white !important;
+    background-color: rgba(59,130,246,0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.nav-link:hover::before, .nav-link.active::before {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.nav-link:hover i, .nav-link.active i {
+    transform: scale(1.2);
+}
+
+.navbar-toggler {
+    border: none;
+    color: var(--text-light) !important;
+    padding: 0.5rem;
+    transition: var(--transition);
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+}
+
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
+}
+
+.navbar-toggler:hover {
+    background-color: rgba(59,130,246,0.2);
+    transform: rotate(90deg);
+}
+
+.dropdown-menu {
+    background: rgba(30,41,59,0.95);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    box-shadow: var(--glass-shadow);
+    overflow: hidden;
+    padding: 0.5rem;
+    margin-top: 10px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.dropdown-item {
+    color: var(--text-light);
+    transition: var(--transition);
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-item i {
+    margin-right: 10px;
+    color: var(--accent);
+}
+
+.dropdown-item:hover {
+    background: var(--accent-gradient);
+    color: white;
+    transform: translateX(5px);
+}
+
+.user-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    font-size: 16px;
+    transition: var(--transition);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    border: 2px solid rgba(255,255,255,0.2);
+}
+
+.user-dropdown:hover .user-avatar {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    margin-left: 12px;
+}
+
+.user-name {
+    font-weight: 600;
+    color: black;
+    font-size: 0.95rem;
+}
+
+.user-role {
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.badge-notification {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: linear-gradient(45deg, #ef4444, #dc2626);
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.2em 0.5em;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 5px rgba(239,68,68,0.5);
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.7); }
+    70% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+    100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+}
+
+.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    text-align: center;
+}
+
+.content h1 {
+    color: var(--primary-dark);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.content p {
+    color: var(--primary-light);
+    font-size: 1.2rem;
+    max-width: 700px;
+    line-height: 1.6;
+}
+
+@media (max-width: 992px) {
+    .navbar-nav { padding: 1rem 0; }
+    .nav-item { margin: 5px 0; }
+    .nav-link { border-radius: 8px; }
     .dropdown-menu {
-        background: var(--primary-light);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        background: rgba(30, 41, 59, 0.95);
-        border: 1px solid var(--glass-border);
-        border-radius: 12px;
-        box-shadow: var(--glass-shadow);
-        overflow: hidden;
-        padding: 0.5rem;
-        margin-top: 10px;
-        animation: fadeIn 0.3s ease;
+        background: transparent;
+        box-shadow: none;
+        margin: 0;
+        padding: 0 0 0 1.5rem;
+        border: none;
     }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px) scale(0.95); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    
-    .dropdown-item {
-        color: var(--text-light);
-        transition: var(--transition);
-        padding: 0.7rem 1rem;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-    }
-    
-    .dropdown-item i {
-        margin-right: 10px;
-        color: var(--accent);
-    }
-    
-    .dropdown-item:hover {
-        background: var(--accent-gradient);
-        color: white;
-        transform: translateX(5px);
-    }
-    
-    .user-avatar {
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        background: var(--accent-gradient);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        color: white;
-        font-size: 16px;
-        transition: var(--transition);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        border: 2px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .user-dropdown:hover .user-avatar {
-        transform: scale(1.1);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-    }
-    
-    .user-info {
-        display: flex;
-        flex-direction: column;
-        margin-left: 12px;
-    }
-    
-    .user-name {
-        font-weight: 600;
-        color: black;
-        font-size: 0.95rem;
-    }
-    
-    .user-role {
-        font-size: 0.75rem;
-        color: var(--accent);
-        font-weight: 500;
-    }
-    
-    .badge-notification {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        background: linear-gradient(45deg, #ef4444, #dc2626);
-        color: white;
-        font-size: 0.7rem;
-        padding: 0.2em 0.5em;
-        border-radius: 50%;
-        animation: pulse 2s infinite;
-        box-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
-    }
-    
-    @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-        70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-    }
-    
-    .content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem;
-        text-align: center;
-    }
-    
-    .content h1 {
-        color: var(--primary-dark);
-        margin-bottom: 1rem;
-        font-weight: 700;
-    }
-    
-    .content p {
-        color: var(--primary-light);
-        font-size: 1.2rem;
-        max-width: 700px;
-        line-height: 1.6;
-    }
-    
-    @media (max-width: 992px) {
-        .navbar-nav {
-            padding: 1rem 0;
-        }
-        
-        .nav-item {
-            margin: 5px 0;
-        }
-        
-        .nav-link {
-            border-radius: 8px;
-        }
-        
-        .dropdown-menu {
-            background: transparent;
-            box-shadow: none;
-            margin: 0;
-            padding: 0 0 0 1.5rem;
-            border: none;
-        }
-        
-        .user-info {
-            display: none;
-        }
-    }
+    .user-info { display: none; }
+}
 </style>
 
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
@@ -314,38 +299,46 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            {% if request.user.is_hod %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'approve_page' %}">
-                        <i class="bi bi-speedometer2"></i> Loan Status
-                        
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'lab_to_lab_transfer' %}">
-                        <i class="bi bi-speedometer2"></i> lab Transfer
-                        
-                    </a>
-                </li>
-            {% endif %}
+                {% if request.user.is_hod %}
+                    <!-- HOD Actions Group -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'approve_page' %}">
+                            <i class="bi bi-check2-circle"></i> Loan Status
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'lab_to_lab_transfer' %}">
+                            <i class="bi bi-arrow-left-right"></i> Lab Transfer
+                        </a>
+                    </li>
+                {% endif %}
+
                 {% if request.user.is_authenticated %}
+                    <!-- Dashboard & Records Group -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard' %}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'your_loan' %}">
+                            <i class="bi bi-journal-check"></i> Your Loan
+                        </a>
+                    </li>
+
+                    <!-- Security Group -->
+                    <li class="nav-item">
+                        <a class="nav-link" title="Password Change" href="{% url 'password_change' %}">
+                            <i class="bi bi-key"></i> Password
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">
                             <i class="bi bi-box-arrow-right"></i> Logout
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" title="password change" href="{% url 'password_change' %}">
-                            <i class="bi bi-box-arrow-right"></i> Password
-                        </a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'your_loan' %}">
-                            <i class="bi bi-clipboard-data"></i> Your Loan
-                        </a>
-                    </li>
                 {% else %}
+                    <!-- Auth Group -->
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">
                             <i class="bi bi-box-arrow-in-right"></i> Login
@@ -358,6 +351,7 @@
                     </li>
                 {% endif %}
             </ul>
+
             <div class="d-flex align-items-center">
                 <div class="dropdown user-dropdown">
                     <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" role="button" data-bs-toggle="dropdown">
@@ -367,13 +361,13 @@
                         <div class="user-info">
                             <span class="user-name">{{ request.user.username }}</span>
                             {% if request.user.is_student %}
-                            <span class="user-role">Student</span>
+                                <span class="user-role">Student</span>
                             {% elif request.user.is_teacher %}
-                            <span class="user-role">Teacher</span>
+                                <span class="user-role">Teacher</span>
                             {% elif request.user.is_superuser %}
-                            <span class="user-role">Admin</span>
+                                <span class="user-role">Admin</span>
                             {% else %}
-                            <span class="user-role">User</span>
+                                <span class="user-role">User</span>
                             {% endif %}
                         </div>
                     </a>
@@ -381,7 +375,7 @@
                         <li><a class="dropdown-item" href="#"><i class="bi bi-person-circle"></i> Profile</a></li>
                         <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Settings</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
                     </ul>
                 </div>
             </div>
@@ -391,23 +385,16 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Add scroll effect to navbar
+    // Scroll effect
     window.addEventListener('scroll', function() {
         const navbar = document.querySelector('.navbar');
-        if (window.scrollY > 10) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
+        if (window.scrollY > 10) navbar.classList.add('scrolled');
+        else navbar.classList.remove('scrolled');
     });
-    
-    // Add animation to dropdown items
+
+    // Dropdown item hover animation
     document.querySelectorAll('.dropdown-item').forEach(item => {
-        item.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateX(5px)';
-        });
-        item.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateX(0)';
-        });
+        item.addEventListener('mouseenter', () => item.style.transform = 'translateX(5px)');
+        item.addEventListener('mouseleave', () => item.style.transform = 'translateX(0)');
     });
 </script>
