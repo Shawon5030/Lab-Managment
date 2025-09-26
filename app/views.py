@@ -590,3 +590,242 @@ def export_transfers(request):
 class MyPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     template_name = 'password_change/password_change.html'
     success_url = reverse_lazy('password_change_done')
+    
+    
+from datetime import timedelta
+from django.shortcuts import render
+from django.urls import reverse
+from django.http import JsonResponse
+from django.db.models import Count, Q
+from django.db.models.functions import TruncDate
+from django.utils import timezone
+
+from .models import Lab, Product, Category, LoanRequest, ProductTransfer, User
+
+
+def dashboard_view(request):
+    return render(request, "dashboard.html", {
+        "data_url": reverse("dashboard-data")
+    })
+
+
+def dashboard_data_view(request):
+    """
+    JSON data used by dashboard.html for all charts/graphs/tables.
+    Supports ?limit_products=<int> to cap the D3 graph size.
+    """
+    limit_products = max(50, min(int(request.GET.get("limit_products", 200)), 2000))
+
+    now = timezone.now()
+    start_date = (now - timedelta(days=29)).date()  # last 30 days inclusive
+
+    # Aggregates
+    total_products = Product.objects.count()
+    total_labs = Lab.objects.count()
+    total_categories = Category.objects.count()
+    total_transfers = ProductTransfer.objects.count()
+    active_loans_count = LoanRequest.objects.filter(status="approved").count()
+
+    total_users = User.objects.count()
+    teachers_count = User.objects.filter(is_teacher=True).count()
+    students_count = User.objects.filter(is_student=True).count()
+    hods_count = User.objects.filter(is_hod=True).count()
+
+    # Labs with counts
+    labs_qs = Lab.objects.annotate(
+        product_count=Count('products', distinct=True),
+        transfers_in_count=Count('transfers_in', distinct=True),
+        transfers_out_count=Count('transfers_out', distinct=True),
+        available=Count('products', filter=Q(products__status='available'), distinct=True),
+        pending=Count('products', filter=Q(products__status='pending'), distinct=True),
+        in_loan=Count('products', filter=Q(products__status='in_loan'), distinct=True),
+        returned=Count('products', filter=Q(products__status='returned'), distinct=True),
+    ).order_by('name')
+
+    labs = [
+        {
+            "id": lab.id,
+            "name": lab.name,
+            "product_count": lab.product_count,
+            "transfers_in_count": lab.transfers_in_count,
+            "transfers_out_count": lab.transfers_out_count,
+            "statuses": {
+                "available": lab.available,
+                "pending": lab.pending,
+                "in_loan": lab.in_loan,
+                "returned": lab.returned,
+            }
+        }
+        for lab in labs_qs
+    ]
+
+    # Categories with counts
+    categories_qs = Category.objects.annotate(
+        product_count=Count('product', distinct=True)  # reverse relation 'product'
+    ).order_by('name')
+    categories = [
+        {"id": c.id, "name": c.name, "product_count": c.product_count}
+        for c in categories_qs
+    ]
+
+    # Product status counts (global)
+    status_choices = [code for code, _ in Product.STATUS_CHOICES]
+    status_counts_qs = Product.objects.values('status').annotate(count=Count('id'))
+    product_status_counts = {code: 0 for code in status_choices}
+    for row in status_counts_qs:
+        product_status_counts[row['status']] = row['count']
+
+    # Timeseries: Loans (stacked by status) over last 30 days
+    loans_daily = LoanRequest.objects.filter(request_date__date__gte=start_date)\
+        .annotate(day=TruncDate('request_date'))\
+        .values('day', 'status')\
+        .annotate(count=Count('id'))\
+        .order_by('day')
+
+    days = [start_date + timedelta(days=i) for i in range(30)]
+    day_labels = [d.isoformat() for d in days]
+    daily_map = {d: {"pending": 0, "approved": 0, "rejected": 0} for d in day_labels}
+    for row in loans_daily:
+        day_label = row['day'].isoformat()
+        if day_label in daily_map:
+            daily_map[day_label][row['status']] = row['count']
+    loans_timeseries = {
+        "dates": day_labels,
+        "pending": [daily_map[d]["pending"] for d in day_labels],
+        "approved": [daily_map[d]["approved"] for d in day_labels],
+        "rejected": [daily_map[d]["rejected"] for d in day_labels],
+    }
+
+    # Timeseries: Transfers (per day)
+    transfers_daily = ProductTransfer.objects.filter(transferred_at__date__gte=start_date)\
+        .annotate(day=TruncDate('transferred_at'))\
+        .values('day')\
+        .annotate(count=Count('id'))\
+        .order_by('day')
+
+    transfers_map = {d: 0 for d in day_labels}
+    for row in transfers_daily:
+        day_label = row['day'].isoformat()
+        if day_label in transfers_map:
+            transfers_map[day_label] = row['count']
+    transfers_timeseries = {
+        "dates": day_labels,
+        "counts": [transfers_map[d] for d in day_labels]
+    }
+
+    # Recent activity
+    recent_loans_qs = LoanRequest.objects.select_related(
+        'product', 'requested_by', 'for_student', 'approved_by'
+    ).order_by('-request_date')[:10]
+    recent_loans = []
+    for lr in recent_loans_qs:
+        recent_loans.append({
+            "id": lr.id,
+            "product": lr.product.name if lr.product_id else None,
+            "requested_by": lr.requested_by.username if lr.requested_by_id else None,
+            "for_student": lr.for_student.username if lr.for_student_id else None,
+            "status": lr.status,
+            "request_date": timezone.localtime(lr.request_date).isoformat() if lr.request_date else None,
+            "approved_by": lr.approved_by.username if lr.approved_by_id else None,
+            "approved_date": timezone.localtime(lr.approved_date).isoformat() if lr.approved_date else None,
+            "return_date": lr.return_date.isoformat() if lr.return_date else None,
+            "return_status": lr.return_status,
+            "rejection_reason": lr.rejection_reason,
+        })
+
+    recent_transfers_qs = ProductTransfer.objects.select_related(
+        'product', 'from_lab', 'to_lab', 'transferred_by'
+    ).order_by('-transferred_at')[:10]
+    recent_transfers = []
+    for t in recent_transfers_qs:
+        recent_transfers.append({
+            "id": t.id,
+            "product": t.product.name if t.product_id else None,
+            "from_lab": t.from_lab.name if t.from_lab_id else None,
+            "to_lab": t.to_lab.name if t.to_lab_id else None,
+            "quantity": t.quantity,
+            "return_product": t.return_product,
+            "transferred_by": t.transferred_by.username if t.transferred_by_id else None,
+            "transferred_at": timezone.localtime(t.transferred_at).isoformat() if t.transferred_at else None,
+        })
+
+    # D3 Graph: labs + a capped set of products
+    products_for_graph_qs = Product.objects.select_related('lab', 'category')\
+        .order_by('-id')[:limit_products]
+
+    graph_nodes = []
+    graph_links = []
+
+    # labs as nodes
+    for lab in labs_qs:
+        graph_nodes.append({
+            "id": f"lab-{lab.id}",
+            "label": lab.name,
+            "type": "lab",
+            "size": max(10, min(40, 10 + lab.product_count // 2)),
+        })
+
+    # products as nodes + links
+    for p in products_for_graph_qs:
+        graph_nodes.append({
+            "id": f"prod-{p.id}",
+            "label": p.name,
+            "type": "product",
+            "status": p.status,
+            "lab_id": p.lab_id,
+            "category": p.category.name if p.category_id else None,
+        })
+        graph_links.append({
+            "source": f"lab-{p.lab_id}",
+            "target": f"prod-{p.id}"
+        })
+
+    data = {
+        "summary": {
+            "totals": {
+                "products": total_products,
+                "labs": total_labs,
+                "categories": total_categories,
+                "transfers": total_transfers,
+                "users": total_users,
+                "teachers": teachers_count,
+                "students": students_count,
+                "hods": hods_count,
+                "active_loans": active_loans_count,
+            }
+        },
+        "labs": labs,
+        "categories": categories,
+        "product_status_counts": product_status_counts,
+        "statuses_by_lab": [
+            {
+                "lab_id": l["id"],
+                "lab_name": l["name"],
+                **l["statuses"]
+            } for l in labs
+        ],
+        "timeseries": {
+            "loans": loans_timeseries,
+            "transfers": transfers_timeseries,
+        },
+        "recent": {
+            "loans": recent_loans,
+            "transfers": recent_transfers,
+        },
+        "graph": {
+            "nodes": graph_nodes,
+            "links": graph_links,
+            "status_palette": {
+                "available": "#3fb950",
+                "pending": "#f1e05a",
+                "in_loan": "#f97583",
+                "returned": "#58a6ff",
+            }
+        },
+        "meta": {
+            "generated_at": now.isoformat(),
+            "status_choices": status_choices,
+            "limit_products": limit_products,
+        }
+    }
+    return JsonResponse(data, safe=True)

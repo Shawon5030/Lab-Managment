@@ -5,35 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Return Product Requests</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <style>
         :root {
-            --primary-dark: #0f172a;
-            --primary-light: #1e293b;
-            --accent: #3b82f6;
-            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-            --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-            --transition: all 0.3s ease;
+            --primary-dark: #1e293b;
+            --primary-light: #334155;
+            --accent: #4f46e5;
+            --accent-hover: #4338ca;
+            --bg-light: #f8fafc;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --transition: all 0.25s ease;
+            --border-radius: 16px;
         }
 
         body {
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f8fafc;
-            min-height: 100vh;
-            color: #334155;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--primary-dark);
+            line-height: 1.6;
+            padding-bottom: 3rem;
         }
 
         .container { 
-            max-width: 1200px; 
-            padding-bottom: 2rem;
+            max-width: 1300px; 
+            padding-top: 1rem;
         }
 
+        /* Header Banner */
         .page-header {
-            background:#4b77f4;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
-            padding: 1.75rem 2rem;
-            border-radius: 16px;
-            margin-bottom: 2rem;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2.5rem;
             box-shadow: var(--card-shadow);
             position: relative;
             overflow: hidden;
@@ -42,12 +46,13 @@
         .page-header::before {
             content: '';
             position: absolute;
-            top: -20px;
-            right: -20px;
-            width: 120px;
-            height: 120px;
-            background: rgba(255, 255, 255, 0.1);
+            top: -30px;
+            right: -30px;
+            width: 180px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.08);
             border-radius: 50%;
+            z-index: 0;
         }
 
         .page-header h2 {
@@ -55,238 +60,290 @@
             margin: 0;
             display: flex;
             align-items: center;
+            gap: 1rem;
             position: relative;
             z-index: 1;
+            font-size: 1.75rem;
         }
 
-        .page-header h2 i { 
-            margin-right: 12px; 
-            font-size: 1.8rem; 
-            background:#4b77f4;
-            padding: 10px;
-            border-radius: 12px;
+        .page-header i {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 14px;
+            border-radius: 50%;
+            font-size: 1.75rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* Filters */
         .filter-bar {
-            display: flex;
-            gap: 1.5rem;
-            flex-wrap: wrap;
-            margin-bottom: 1.5rem;
             background: white;
-            padding: 1.5rem;
-            border-radius: 16px;
+            padding: 1.75rem;
+            border-radius: var(--border-radius);
             box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
         }
 
         .filter-group {
             display: flex;
             flex-direction: column;
-            min-width: 180px;
+            gap: 0.5rem;
         }
 
         .filter-label {
+            font-size: 0.875rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--primary-dark);
-            font-size: 0.9rem;
+            color: var(--primary-light);
+            letter-spacing: 0.02em;
         }
 
-        .filter-bar input, .filter-bar select {
-            border-radius: 10px;
+        .filter-bar input,
+        .filter-bar select {
+            padding: 0.75rem 1rem;
             border: 2px solid #e2e8f0;
-            padding: 0.6rem 0.9rem;
-            transition: var(--transition);
+            border-radius: 12px;
             font-size: 0.95rem;
+            transition: var(--transition);
+            outline: none;
         }
 
-        .filter-bar input:focus, .filter-bar select:focus {
+        .filter-bar input:focus,
+        .filter-bar select:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        /* Action Buttons Row */
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .action-buttons .btn {
+            border-radius: 10px;
+            padding: 0.65rem 1.25rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .action-buttons .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-light {
+            background: #f1f5f9;
+            border-color: #f1f5f9;
+            color: #475569;
+        }
+
+        .btn-light:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
         }
 
         /* Table */
         .table-container {
             background: white;
-            border-radius: 16px;
+            border-radius: var(--border-radius);
             overflow: hidden;
             box-shadow: var(--card-shadow);
-            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
         }
 
-        table { 
-            margin-bottom: 0; 
-            border-collapse: separate;
+        table {
+            margin: 0;
             border-spacing: 0;
-            margin-top:20px !important;
         }
-        
+
         thead th {
-            background: #4b77f4;
-            color: black !important;
+            background: linear-gradient(135deg, #4f46e5 0%, #6d28d9 100%);
+            color: white !important;
             font-weight: 600;
-            padding: 1.2rem 1.5rem;
-            border: none;
+            padding: 1.25rem 1.5rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             position: sticky;
             top: 0;
             z-index: 10;
-            font-size: 0.95rem;
         }
 
         thead th:first-child {
-            border-top-left-radius: 16px;
+            border-top-left-radius: var(--border-radius);
         }
 
         thead th:last-child {
-            border-top-right-radius: 16px;
+            border-top-right-radius: var(--border-radius);
         }
 
-        tbody td { 
-            padding: 1.2rem 1.5rem; 
-            vertical-align: middle; 
-            border-color: #f1f5f9; 
-            font-size: 0.95rem;
-            transition: var(--transition);
-        }
-        
         tbody tr {
             transition: var(--transition);
             position: relative;
         }
-        
-        tbody tr:after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 95%;
-            height: 1px;
-            background: #f1f5f9;
-        }
-        
-        tbody tr:last-child:after {
-            display: none;
-        }
-        
+
         tbody tr:hover {
             background-color: #f8fafc;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
         }
 
-        .status-badge { 
-            padding: 0.5rem 1rem; 
-            border-radius: 10px; 
-            font-weight: 600; 
+        tbody td {
+            padding: 1.25rem 1.5rem;
+            vertical-align: middle;
+            font-size: 0.95rem;
+            color: var(--primary-dark);
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
             font-size: 0.85rem;
-            display: inline-block;
-            text-align: center;
-            min-width: 90px;
-        }
-        
-        .bg-pending { 
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); 
-            color: #92400e; 
-            box-shadow: 0 2px 4px rgba(146, 64, 14, 0.1);
-        }
-        
-        .bg-approved { 
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); 
-            color: #065f46; 
-            box-shadow: 0 2px 4px rgba(6, 95, 70, 0.1);
-        }
-        
-        .bg-rejected { 
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); 
-            color: #991b1b; 
-            box-shadow: 0 2px 4px rgba(153, 27, 27, 0.1);
-        }
-        
-        .bg-returned { 
-            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); 
-            color: #3730a3; 
-            box-shadow: 0 2px 4px rgba(55, 48, 163, 0.1);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            border: none; 
-            border-radius: 10px; 
-            padding: 0.6rem 1.2rem;
-            font-weight: 500; 
-            transition: var(--transition);
-            font-size: 0.9rem;
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
-        }
-        
-        .btn-success:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 6px 16px rgba(16,185,129,0.3); 
+            gap: 0.5rem;
+            min-width: 100px;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
         }
 
-        .alert-info {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            color: #1e40af; 
-            border: none; 
-            border-radius: 16px;
-            padding: 2rem; 
-            text-align: center; 
+        .bg-pending {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+        }
+
+        .bg-approved {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+
+        .bg-rejected {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+        }
+
+        .bg-returned {
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            color: #4338ca;
+        }
+
+        .status-badge i {
+            font-size: 0.8rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            background: white;
+            padding: 4rem 2rem;
+            border-radius: var(--border-radius);
+            text-align: center;
             box-shadow: var(--card-shadow);
+            margin-top: 2rem;
         }
 
-        .alert-info i { 
-            font-size: 2.5rem; 
-            margin-bottom: 1rem; 
-            display: block; 
-            color: #3b82f6;
+        .empty-state i {
+            font-size: 3.5rem;
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+            display: block;
         }
-        
-        .alert-info h4 {
+
+        .empty-state h4 {
             font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .alert-info p {
-            margin-bottom: 0;
-            opacity: 0.9;
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 0.75rem;
         }
 
-        @media (max-width: 992px) {
-            .filter-bar {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .filter-group {
-                width: 100%;
-            }
+        .empty-state p {
+            color: #64748b;
+            font-size: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
+        /* Responsive */
         @media (max-width: 768px) {
-            .table-container { 
-                overflow-x: auto; 
+            .page-header {
+                padding: 1.5rem;
                 border-radius: 12px;
             }
-            
-            .page-header { 
-                padding: 1.25rem; 
-                border-radius: 12px;
+
+            .page-header h2 {
+                font-size: 1.5rem;
             }
-            
-            .page-header h2 { 
-                font-size: 1.5rem; 
-            }
-            
-            thead th, tbody td { 
-                padding: 1rem 0.75rem; 
-            }
-            
+
             .filter-bar {
                 padding: 1.25rem;
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .table-container {
+                border-radius: 12px;
+            }
+
+            thead th,
+            tbody td {
+                padding: 1rem 0.75rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .status-badge {
+                min-width: 80px;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -294,7 +351,7 @@
 <body>
     {% include 'navbar.html' %}
 
-    <div class="container mt-5">
+    <div class="container mt-4">
         <div class="page-header">
             <h2><i class="bi bi-arrow-return-left"></i> Return Product Requests</h2>
         </div>
@@ -302,8 +359,8 @@
         <!-- Filters -->
         <div class="filter-bar">
             <div class="filter-group">
-                <span class="filter-label">Status:</span>
-                <select id="statusFilter">
+                <span class="filter-label">Status</span>
+                <select id="statusFilter" class="form-select">
                     <option value="">All Statuses</option>
                     <option value="pending">Pending</option>
                     <option value="approved">Approved</option>
@@ -312,30 +369,31 @@
                 </select>
             </div>
             <div class="filter-group">
-                <span class="filter-label">User:</span>
-                <input type="text" id="userSearch" placeholder="Search by username">
+                <span class="filter-label">User</span>
+                <input type="text" id="userSearch" class="form-control" placeholder="Search by username">
             </div>
             <div class="filter-group">
-                <span class="filter-label">Product:</span>
-                <input type="text" id="productSearch" placeholder="Search by product">
+                <span class="filter-label">Product</span>
+                <input type="text" id="productSearch" class="form-control" placeholder="Search by product">
             </div>
         </div>
 
-        <div class="d-flex gap-2">
-            <a href="" class="btn btn-sm btn-light">
-                <i class="bi bi-download me-1"></i> Export All Loans
+        <!-- Export Buttons -->
+        <div class="action-buttons">
+            <a href="" class="btn btn-light">
+                <i class="bi bi-download"></i> Export All Loans
             </a>
-            <a href="" class="btn btn-sm btn-success">
-                <i class="bi bi-check-circle me-1"></i> Export Approved Loans
+            <a href="" class="btn btn-success">
+                <i class="bi bi-check-circle"></i> Export Approved Loans
             </a>
-            <a href="" class="btn btn-sm btn-danger">
-                <i class="bi bi-x-circle me-1"></i> Export Rejected Loans
+            <a href="" class="btn btn-danger">
+                <i class="bi bi-x-circle"></i> Export Rejected Loans
             </a>
         </div>
 
         {% if return_requests %}
         <div class="table-container">
-            <table class="table table-hover" id="requestsTable">
+            <table class="table table-hover align-middle mb-0" id="requestsTable">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -357,11 +415,13 @@
                         <td>{{ req.request_date|date:"Y-m-d H:i" }}</td>
                         <td class="status">
                             {% if req.status == "pending" %}
-                                <span class="status-badge bg-pending">Pending</span>
+                                <span class="status-badge bg-pending"><i class="bi bi-hourglass-split"></i> Pending</span>
                             {% elif req.status == "approved" %}
-                                <span class="status-badge bg-approved">Approved</span>
+                                <span class="status-badge bg-approved"><i class="bi bi-check-lg"></i> Approved</span>
                             {% elif req.status == "rejected" %}
-                                <span class="status-badge bg-rejected">Rejected</span>
+                                <span class="status-badge bg-rejected"><i class="bi bi-x-lg"></i> Rejected</span>
+                            {% elif req.return_status %}
+                                <span class="status-badge bg-returned"><i class="bi bi-box-arrow-in-left"></i> Returned</span>
                             {% endif %}
                         </td>
                         <td>
@@ -369,12 +429,12 @@
                                 <form method="post" action="{% url 'your_loan' %}">
                                     {% csrf_token %}
                                     <input type="hidden" name="id" value="{{ req.id }}">
-                                    <button type="submit" class="btn btn-success btn-sm">
-                                        <i class="bi bi-check-circle"></i> Apply for Return
+                                    <button type="submit" class="btn btn-success btn-sm px-3">
+                                        <i class="bi bi-box-arrow-in-left"></i> Apply Return
                                     </button>
                                 </form>
                             {% elif req.return_status %}
-                                <span class="status-badge bg-returned">Returned</span>
+                                <span class="status-badge bg-returned"><i class="bi bi-check-circle"></i> Returned</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -383,11 +443,11 @@
             </table>
         </div>
         {% else %}
-            <div class="alert alert-info">
-                <i class="bi bi-inbox"></i>
-                <h4>No return requests found</h4>
-                <p>There are currently no return product requests to display.</p>
-            </div>
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <h4>No Return Requests Found</h4>
+            <p>There are currently no return product requests to display. Check back later or adjust your filters.</p>
+        </div>
         {% endif %}
     </div>
 
@@ -405,13 +465,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const userValue = userSearch.value.toLowerCase();
         const productValue = productSearch.value.toLowerCase();
 
-        for (let i = 1; i < rows.length; i++) { // skip header
+        for (let i = 1; i < rows.length; i++) {
             let row = rows[i];
-            let userCell = row.cells[1].textContent.toLowerCase();
-            let productCell = row.cells[2].textContent.toLowerCase();
-            let statusCell = row.cells[5].textContent.toLowerCase();
+            let userCell = row.cells[1]?.textContent.toLowerCase() || '';
+            let productCell = row.cells[2]?.textContent.toLowerCase() || '';
+            let statusCell = row.cells[5]?.textContent.toLowerCase() || '';
 
-            // Handle "Returned" status explicitly
             let isReturned = row.querySelector(".bg-returned") !== null;
             let statusMatch = 
                 statusValue === "" || 

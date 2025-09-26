@@ -34,7 +34,11 @@ urlpatterns = [
         template_name='password_change/password_change_done.html'
     ), name='password_change_done'),
     
-    path('password/change/', MyPasswordChangeView.as_view(), name='password_change')
+    path('password/change/', MyPasswordChangeView.as_view(), name='password_change'),
+   
+    path("dashboard/", dashboard_view, name="dashboard"),
+    path("dashboard/data/", dashboard_data_view, name="dashboard-data")
+
 
    
 ]  + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

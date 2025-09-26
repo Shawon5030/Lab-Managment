@@ -107,3 +107,4 @@ class ProductTransferAdmin(admin.ModelAdmin):
     search_fields = ('product__name', 'from_lab__name', 'to_lab__name', 'transferred_by__username')
     readonly_fields = ('transferred_at',)
     ordering = ('-transferred_at',)
+

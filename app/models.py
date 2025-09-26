@@ -116,3 +116,4 @@ class ProductTransfer(models.Model):
 
     def __str__(self):
         return f"{self.product.name} from {self.from_lab.name} to {self.to_lab.name} on {self.transferred_at.date()}"
+

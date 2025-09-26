@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inventory Dashboard</title>
+
+  <!-- Fonts (system stack for performance and clarity) -->
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --muted: #f1f5f9;
+      --text: #0b1220;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --primary: #2563eb;
+      --accent: #0ea5e9;
+      --good: #16a34a;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --info: #0ea5e9;
+      --shadow: 0 4px 20px rgba(2, 6, 23, 0.08);
+
+      /* Status palette (fallback; overridden by API values) */
+      --status-available: #3fb950;
+      --status-pending: #f1e05a;
+      --status-in_loan: #f97583;
+      --status-returned: #58a6ff;
+
+      --card-radius: 14px;
+      --btn-radius: 10px;
+      --focus: 2px solid #84cc16;
+    }
+    /* Dark theme */
+    @media (prefers-color-scheme: dark) {
+      [data-theme="auto"] {
+        --bg: #0b1220;
+        --surface: #0f172a;
+        --muted: #111827;
+        --text: #e5e7eb;
+        --text-muted: #94a3b8;
+        --border: #1f2937;
+        --primary: #3b82f6;
+        --accent: #22d3ee;
+        --good: #22c55e;
+        --warn: #f59e0b;
+        --bad: #ef4444;
+        --info: #06b6d4;
+        --shadow: 0 8px 28px rgba(0,0,0,0.45);
+      }
+    }
+    [data-theme="dark"] {
+      --bg: #0b1220;
+      --surface: #0f172a;
+      --muted: #111827;
+      --text: #e5e7eb;
+      --text-muted: #94a3b8;
+      --border: #1f2937;
+      --primary: #3b82f6;
+      --accent: #22d3ee;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --info: #06b6d4;
+      --shadow: 0 8px 28px rgba(0,0,0,0.45);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji;
+    }
+    * { box-sizing: border-box; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .title {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .title h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: .3px;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: var(--btn-radius);
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+    .btn:hover { filter: brightness(1.02); }
+    .btn.primary {
+      background: linear-gradient(180deg, var(--primary), #1d4ed8);
+      border-color: #1e40af;
+      color: white;
+    }
+    .btn.ghost { background: transparent; box-shadow: none; }
+    .input, select {
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--btn-radius);
+      background: var(--surface);
+      color: var(--text);
+    }
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+    .grid.cols-4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    @media (max-width: 1100px) { .grid.cols-4 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    @media (max-width: 700px) { .grid.cols-3, .grid.cols-2, .grid.cols-4 { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      position: relative;
+      overflow: clip;
+    }
+    .card h3 {
+      margin: 0 0 12px 0; font-size: 15px; color: var(--text-muted);
+    }
+    .stat {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .stat .value {
+      font-size: 24px; font-weight: 700; letter-spacing: .2px;
+    }
+    .stat .badge {
+      font-size: 12px; border-radius: 999px; padding: 4px 8px; border: 1px solid var(--border); color: var(--text-muted);
+    }
+    .kpi {
+      display: grid; gap: 10px; grid-template-columns: 48px 1fr; align-items: center;
+    }
+    .kpi .icon {
+      width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: white;
+    }
+    .icon.prod { background: linear-gradient(180deg, #059669, #047857); }
+    .icon.lab { background: linear-gradient(180deg, #3b82f6, #1d4ed8); }
+    .icon.cat { background: linear-gradient(180deg, #a855f7, #7c3aed); }
+    .icon.users { background: linear-gradient(180deg, #0ea5e9, #0284c7); }
+    .icon.tx { background: linear-gradient(180deg, #f59e0b, #d97706); }
+    .icon.loan { background: linear-gradient(180deg, #ef4444, #b91c1c); }
+
+    .legend {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      font-size: 12px; color: var(--text-muted);
+    }
+    .legend .item { display: inline-flex; align-items: center; gap: 6px; }
+    .swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--border); }
+
+    .table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+    }
+    .table thead th {
+      text-align: left; color: var(--text-muted);
+      font-weight: 600; padding: 10px 8px; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--surface); z-index: 1;
+    }
+    .table tbody td {
+      padding: 10px 8px; border-bottom: 1px dashed var(--border);
+    }
+    .table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .stackbar {
+      display: grid; grid-auto-flow: column; gap: 0; height: 8px; border-radius: 999px; overflow: hidden; background: var(--muted);
+    }
+    .stackbar span { height: 100%; }
+
+    .status-dot {
+      width: 8px; height: 8px; display: inline-block; border-radius: 50%; margin-right: 6px; vertical-align: middle;
+    }
+
+    .section-title {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 8px 0 4px;
+    }
+    .loading {
+      display: grid; place-items: center; padding: 32px; color: var(--text-muted);
+    }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+    .footer {
+      margin-top: 24px; color: var(--text-muted); font-size: 12px;
+    }
+    /* Graph container */
+    #graph {
+      height: 540px; position: relative;
+      border-radius: 12px; background: radial-gradient(1200px 600px at 0% 100%, rgba(99,102,241,.06), transparent 60%), var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    #graph .overlay {
+      position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(0deg, rgba(0,0,0,0.06), transparent 20%);
+    }
+    #graph-tools {
+      display: flex; gap: 8px; align-items: center; flex-wrap: wrap; color: var(--text-muted);
+    }
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px;
+      border: 1px solid var(--border); background: var(--surface);
+      font-size: 12px;
+    }
+  </style>
+
+  <!-- Chart.js & D3 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <div class="title">
+        <h1>Inventory Dashboard</h1>
+        <span class="subtitle">Insights from the last 30 days</span>
+      </div>
+      <div class="controls">
+        <label class="chip">
+          <span>Limit products</span>
+          <input id="limitProducts" class="input" type="number" min="50" max="2000" step="50" value="200" style="width: 90px" />
+        </label>
+        <button id="refreshBtn" class="btn primary">Refresh</button>
+        <button id="themeBtn" class="btn">Toggle theme</button>
+        <span id="lastUpdated" class="subtitle"></span>
+      </div>
+    </header>
+
+    <!-- KPIs -->
+    <section class="grid cols-4">
+      <div class="card kpi">
+        <div class="icon prod" aria-hidden="true">📦</div>
+        <div>
+          <div class="stat">
+            <h3>Products</h3>
+            <span class="badge" id="activeLoansBadge">active loans</span>
+          </div>
+          <div class="value" id="kpiProducts">—</div>
+        </div>
+      </div>
+      <div class="card kpi">
+        <div class="icon lab" aria-hidden="true">🏭</div>
+        <div>
+          <h3>Labs</h3>
+          <div class="value" id="kpiLabs">—</div>
+        </div>
+      </div>
+      <div class="card kpi">
+        <div class="icon cat" aria-hidden="true">🗂️</div>
+        <div>
+          <h3>Categories</h3>
+          <div class="value" id="kpiCategories">—</div>
+        </div>
+      </div>
+      <div class="card kpi">
+        <div class="icon users" aria-hidden="true">👤</div>
+        <div>
+          <div class="stat">
+            <h3>Users</h3>
+            <span class="badge" id="usersBreakdown">—</span>
+          </div>
+          <div class="value" id="kpiUsers">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="grid cols-3">
+      <div class="card">
+        <div class="section-title">
+          <h3>Product Status</h3>
+          <div class="legend" id="statusLegend"></div>
+        </div>
+        <canvas id="statusDonut" height="200" aria-label="Product status distribution"></canvas>
+      </div>
+      <div class="card">
+        <div class="section-title">
+          <h3>Transfers (30 days)</h3>
+        </div>
+        <canvas id="transfersLine" height="200" aria-label="Daily transfers"></canvas>
+      </div>
+      <div class="card">
+        <div class="section-title">
+          <h3>Loan Requests (by status)</h3>
+        </div>
+        <canvas id="loansStacked" height="200" aria-label="Daily loan requests by status"></canvas>
+      </div>
+    </section>
+
+    <!-- Labs + Categories -->
+    <section class="grid cols-2">
+      <div class="card">
+        <div class="section-title">
+          <h3>Labs Overview</h3>
+          <span class="subtitle">Products, transfers, and status mix</span>
+        </div>
+        <div style="max-height: 360px; overflow: auto;">
+          <table class="table" id="labsTable">
+            <thead>
+              <tr>
+                <th>Lab</th>
+                <th class="num">Products</th>
+                <th class="num">Transfers In</th>
+                <th class="num">Transfers Out</th>
+                <th>Status Mix</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="5" class="loading">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">
+          <h3>Categories</h3>
+          <span class="subtitle">Products per category</span>
+        </div>
+        <div style="max-height: 360px; overflow: auto;">
+          <table class="table" id="categoriesTable">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th class="num">Products</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="2" class="loading">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Activity -->
+    <section class="grid cols-2">
+      <div class="card">
+        <div class="section-title">
+          <h3>Recent Loans</h3>
+        </div>
+        <div style="max-height: 360px; overflow: auto;">
+          <table class="table" id="recentLoansTable">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Requested By</th>
+                <th>For</th>
+                <th>Status</th>
+                <th>Requested</th>
+                <th>Approved By</th>
+                <th>Approved</th>
+                <th>Return</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="8" class="loading">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">
+          <h3>Recent Transfers</h3>
+        </div>
+        <div style="max-height: 360px; overflow: auto;">
+          <table class="table" id="recentTransfersTable">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>From</th>
+                <th>To</th>
+                <th class="num">Qty</th>
+                <th>Return</th>
+                <th>By</th>
+                <th>When</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="7" class="loading">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Graph -->
+    <section class="card">
+      <div class="section-title">
+        <h3>Labs ⇄ Products Graph</h3>
+        <div id="graph-tools">
+          <span class="subtitle">Filter:</span>
+          <label class="chip"><input type="checkbox" class="statusFilter" value="available" checked> <span class="swatch" style="background: var(--status-available)"></span> available</label>
+          <label class="chip"><input type="checkbox" class="statusFilter" value="pending" checked> <span class="swatch" style="background: var(--status-pending)"></span> pending</label>
+          <label class="chip"><input type="checkbox" class="statusFilter" value="in_loan" checked> <span class="swatch" style="background: var(--status-in_loan)"></span> in_loan</label>
+          <label class="chip"><input type="checkbox" class="statusFilter" value="returned" checked> <span class="swatch" style="background: var(--status-returned)"></span> returned</label>
+        </div>
+      </div>
+      <div id="graph" role="img" aria-label="Force-directed graph of labs and products">
+        <div class="overlay" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <span>Generated at: <span id="generatedAt">—</span></span>
+      <span> • </span>
+      <a id="downloadJson" href="#" download>Download JSON</a>
+    </div>
+  </div>
+
+  <script>
+    // URL from Django view context
+    const dataUrl = "{{ data_url }}";
+
+    // Theme management
+    const root = document.documentElement;
+    const themeBtn = document.getElementById('themeBtn');
+    function setTheme(mode) {
+      // mode: 'light' | 'dark' | 'auto'
+      document.documentElement.setAttribute('data-theme', mode);
+      localStorage.setItem('dashboard:theme', mode);
+    }
+    function getTheme() {
+      return localStorage.getItem('dashboard:theme') || 'auto';
+    }
+    setTheme(getTheme());
+    themeBtn.addEventListener('click', () => {
+      const current = getTheme();
+      const next = current === 'dark' ? 'light' : current === 'light' ? 'auto' : 'dark';
+      setTheme(next);
+      // redraw charts for better contrast
+      if (window._charts) for (const c of window._charts) c.update('none');
+      // re-render graph for contrast
+      if (window._lastData) renderGraph(window._lastData.graph, window._statusPalette);
+    });
+
+    // Helpers
+    const fmt = new Intl.NumberFormat();
+    const fmtDate = (iso) => {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      return d.toLocaleString();
+    };
+    const qs = (sel) => document.querySelector(sel);
+    const qsa = (sel) => Array.from(document.querySelectorAll(sel));
+
+    // Global chart references
+    window._charts = [];
+    window._lastData = null;
+    window._statusPalette = null;
+
+    // Controls
+    const limitInput = document.getElementById('limitProducts');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const lastUpdatedEl = document.getElementById('lastUpdated');
+    const downloadJson = document.getElementById('downloadJson');
+
+    // Fetch data
+    async function fetchData(limit) {
+      const url = new URL(dataUrl, window.location.origin);
+      if (limit) url.searchParams.set('limit_products', String(limit));
+      const res = await fetch(url, { headers: { 'Accept': 'application/json' }});
+      if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
+      return res.json();
+    }
+
+    function setStatusCSSVars(palette) {
+      root.style.setProperty('--status-available', palette.available || getComputedStyle(root).getPropertyValue('--status-available'));
+      root.style.setProperty('--status-pending', palette.pending || getComputedStyle(root).getPropertyValue('--status-pending'));
+      root.style.setProperty('--status-in_loan', palette.in_loan || getComputedStyle(root).getPropertyValue('--status-in_loan'));
+      root.style.setProperty('--status-returned', palette.returned || getComputedStyle(root).getPropertyValue('--status-returned'));
+    }
+
+    // Rendering functions
+    function renderKPIs(summary) {
+      qs('#kpiProducts').textContent = fmt.format(summary.totals.products);
+      qs('#kpiLabs').textContent = fmt.format(summary.totals.labs);
+      qs('#kpiCategories').textContent = fmt.format(summary.totals.categories);
+      qs('#kpiUsers').textContent = fmt.format(summary.totals.users);
+      qs('#usersBreakdown').textContent = `Tch ${fmt.format(summary.totals.teachers)} · Stu ${fmt.format(summary.totals.students)} · HOD ${fmt.format(summary.totals.hods)}`;
+      qs('#activeLoansBadge').textContent = `${fmt.format(summary.totals.active_loans)} active loans`;
+    }
+
+    function buildLegend(palette) {
+      const legend = qs('#statusLegend');
+      legend.innerHTML = '';
+      const items = [
+        ['available', palette.available],
+        ['pending', palette.pending],
+        ['in_loan', palette.in_loan],
+        ['returned', palette.returned],
+      ];
+      for (const [key, color] of items) {
+        const span = document.createElement('span');
+        span.className = 'item';
+        span.innerHTML = `<span class="swatch" style="background:${color};"></span>${key}`;
+        legend.appendChild(span);
+      }
+    }
+
+    function renderTables(data) {
+      // Labs table
+      const tbody = qs('#labsTable tbody');
+      tbody.innerHTML = '';
+      for (const lab of data.labs) {
+        const s = lab.statuses;
+        const total = Math.max(1, s.available + s.pending + s.in_loan + s.returned);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${lab.name}</td>
+          <td class="num">${fmt.format(lab.product_count)}</td>
+          <td class="num">${fmt.format(lab.transfers_in_count)}</td>
+          <td class="num">${fmt.format(lab.transfers_out_count)}</td>
+          <td>
+            <div class="stackbar" title="available ${s.available} · pending ${s.pending} · in_loan ${s.in_loan} · returned ${s.returned}">
+              <span style="width:${(s.available/total)*100}%; background: var(--status-available)"></span>
+              <span style="width:${(s.pending/total)*100}%; background: var(--status-pending)"></span>
+              <span style="width:${(s.in_loan/total)*100}%; background: var(--status-in_loan)"></span>
+              <span style="width:${(s.returned/total)*100}%; background: var(--status-returned)"></span>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      }
+
+      // Categories table
+      const cbody = qs('#categoriesTable tbody');
+      cbody.innerHTML = '';
+      for (const c of data.categories) {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${c.name}</td><td class="num">${fmt.format(c.product_count)}</td>`;
+        cbody.appendChild(row);
+      }
+
+      // Recent loans
+      const lbody = qs('#recentLoansTable tbody');
+      lbody.innerHTML = '';
+      if (!data.recent.loans.length) {
+        lbody.innerHTML = `<tr><td colspan="8" class="loading">No recent loans</td></tr>`;
+      } else {
+        for (const r of data.recent.loans) {
+          const statusColor = r.status === 'approved' ? 'var(--good)' : (r.status === 'rejected' ? 'var(--bad)' : 'var(--warn)');
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${r.product ?? '—'}</td>
+            <td>${r.requested_by ?? '—'}</td>
+            <td>${r.for_student ?? '—'}</td>
+            <td><span class="status-dot" style="background:${statusColor}"></span>${r.status}</td>
+            <td>${fmtDate(r.request_date)}</td>
+            <td>${r.approved_by ?? '—'}</td>
+            <td>${fmtDate(r.approved_date)}</td>
+            <td>${r.return_date ? new Date(r.return_date).toLocaleDateString() : '—'}</td>
+          `;
+          lbody.appendChild(row);
+        }
+      }
+
+      // Recent transfers
+      const tbodyT = qs('#recentTransfersTable tbody');
+      tbodyT.innerHTML = '';
+      if (!data.recent.transfers.length) {
+        tbodyT.innerHTML = `<tr><td colspan="7" class="loading">No recent transfers</td></tr>`;
+      } else {
+        for (const t of data.recent.transfers) {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${t.product ?? '—'}</td>
+            <td>${t.from_lab ?? '—'}</td>
+            <td>${t.to_lab ?? '—'}</td>
+            <td class="num">${fmt.format(t.quantity)}</td>
+            <td>${t.return_product ? 'Yes' : 'No'}</td>
+            <td>${t.transferred_by ?? '—'}</td>
+            <td>${fmtDate(t.transferred_at)}</td>
+          `;
+          tbodyT.appendChild(row);
+        }
+      }
+    }
+
+    // Charts
+    function makeChart(ctx, config) {
+      const chart = new Chart(ctx, config);
+      window._charts.push(chart);
+      return chart;
+    }
+    function transparentize(color, opacity) {
+      const alpha = opacity ?? 0.2;
+      return color.replace('rgb', 'rgba').replace(')', `,${alpha})`);
+    }
+
+    function renderCharts(data, palette) {
+      // Destroy existing charts on reload
+      for (const c of window._charts) try { c.destroy(); } catch {}
+      window._charts = [];
+
+      const statusCounts = data.product_status_counts;
+      const statuses = data.meta.status_choices; // e.g., ['available','pending','in_loan','returned']
+      const statusColors = statuses.map(s => palette[s] || '#999');
+
+      const donutCtx = qs('#statusDonut').getContext('2d');
+      makeChart(donutCtx, {
+        type: 'doughnut',
+        data: {
+          labels: statuses,
+          datasets: [{
+            data: statuses.map(s => statusCounts[s] || 0),
+            backgroundColor: statusColors,
+            borderWidth: 1,
+            borderColor: getComputedStyle(root).getPropertyValue('--bg') || '#fff',
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt.format(ctx.raw)}` } }
+          },
+          cutout: '60%'
+        }
+      });
+
+      // Transfers line
+      const tdates = data.timeseries.transfers.dates.map(d => new Date(d));
+      const tcounts = data.timeseries.transfers.counts;
+      const lineCtx = qs('#transfersLine').getContext('2d');
+      const primary = getComputedStyle(root).getPropertyValue('--primary') || '#2563eb';
+      const gridColor = getComputedStyle(root).getPropertyValue('--border') || '#e2e8f0';
+      makeChart(lineCtx, {
+        type: 'line',
+        data: {
+          labels: tdates.map(d => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })),
+          datasets: [{
+            label: 'Transfers',
+            data: tcounts,
+            borderColor: primary.trim(),
+            backgroundColor: transparentize(primary.trim(), 0.25),
+            tension: 0.25,
+            fill: true,
+            pointRadius: 2
+          }]
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: gridColor.trim() } },
+            y: { grid: { color: gridColor.trim() }, ticks: { precision: 0 } }
+          }
+        }
+      });
+
+      // Loans stacked
+      const ldates = data.timeseries.loans.dates.map(d => new Date(d));
+      const loanCtx = qs('#loansStacked').getContext('2d');
+      const loanStatuses = ['pending', 'approved', 'rejected']; // known from backend
+      const datasets = loanStatuses.map(s => ({
+        label: s,
+        data: data.timeseries.loans[s] || [],
+        backgroundColor: (palette[s] || '#999'),
+        borderColor: (palette[s] || '#999'),
+        borderWidth: 1
+      }));
+      makeChart(loanCtx, {
+        type: 'bar',
+        data: {
+          labels: ldates.map(d => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })),
+          datasets
+        },
+        options: {
+          plugins: { legend: { position: 'bottom' } },
+          responsive: true,
+          scales: {
+            x: { stacked: true, grid: { color: gridColor.trim() } },
+            y: { stacked: true, grid: { color: gridColor.trim() }, ticks: { precision: 0 } }
+          }
+        }
+      });
+    }
+
+    // D3 Graph
+    function renderGraph(graph, palette) {
+      const container = document.getElementById('graph');
+      container.innerHTML = '<div class="overlay" aria-hidden="true"></div>'; // reset
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      const svg = d3.select(container)
+        .append('svg')
+        .attr('viewBox', [0, 0, width, height])
+        .attr('width', '100%')
+        .attr('height', '100%');
+
+      const g = svg.append('g');
+      const linkLayer = g.append('g').attr('stroke', getComputedStyle(root).getPropertyValue('--border')).attr('stroke-opacity', 0.6);
+      const nodeLayer = g.append('g');
+
+      // Zoom/pan
+      svg.call(d3.zoom().scaleExtent([0.3, 3]).on('zoom', (event) => {
+        g.attr('transform', event.transform);
+      }));
+
+      const nodes = graph.nodes.map(d => Object.assign({}, d));
+      const links = graph.links.map(d => Object.assign({}, d));
+
+      const colorForStatus = (s) => palette[s] || '#9ca3af';
+
+      const link = linkLayer
+        .selectAll('line')
+        .data(links)
+        .join('line')
+        .attr('stroke-width', 1);
+
+      const node = nodeLayer
+        .selectAll('g')
+        .data(nodes)
+        .join('g')
+        .call(drag(simulation()));
+
+      // Draw nodes
+      node.each(function(d) {
+        const sel = d3.select(this);
+        const isLab = d.type === 'lab';
+        const r = isLab ? Math.max(10, Math.min(28, d.size || 18)) : 6;
+        sel.append('circle')
+          .attr('r', r)
+          .attr('fill', isLab ? 'transparent' : colorForStatus(d.status))
+          .attr('stroke', isLab ? (getComputedStyle(root).getPropertyValue('--primary') || '#2563eb') : 'rgba(0,0,0,0.2)')
+          .attr('stroke-width', isLab ? 2 : 1.0);
+        if (isLab) {
+          sel.append('text')
+            .text(d.label)
+            .attr('x', r + 6)
+            .attr('y', 4)
+            .attr('fill', getComputedStyle(root).getPropertyValue('--text').trim() || '#0b1220')
+            .attr('font-size', 12)
+            .attr('font-weight', 600);
+        } else {
+          sel.append('title').text(`${d.label} • ${d.status}`);
+        }
+      });
+
+      // Filters
+      const visible = new Set(qsa('.statusFilter').filter(i => i.checked).map(i => i.value));
+      applyFilter();
+      qsa('.statusFilter').forEach(cb => cb.addEventListener('change', () => {
+        visible.clear();
+        qsa('.statusFilter').forEach(i => i.checked && visible.add(i.value));
+        applyFilter(true);
+      }));
+
+      // Simulation
+      function simulation() {
+        const sim = d3.forceSimulation(nodes)
+          .force('link', d3.forceLink(links).id(d => d.id).distance(d => d.type === 'lab' ? 80 : 40).strength(0.12))
+          .force('charge', d3.forceManyBody().strength(-40))
+          .force('center', d3.forceCenter(width / 2, height / 2))
+          .force('collide', d3.forceCollide().radius(d => d.type === 'lab' ? 28 : 10));
+        sim.on('tick', () => {
+          link
+            .attr('x1', d => d.source.x)
+            .attr('y1', d => d.source.y)
+            .attr('x2', d => d.target.x)
+            .attr('y2', d => d.target.y);
+          node.attr('transform', d => `translate(${d.x},${d.y})`);
+        });
+        return sim;
+      }
+
+      function drag(sim) {
+        function dragstarted(event, d) {
+          if (!event.active) sim.alphaTarget(0.3).restart();
+          d.fx = d.x; d.fy = d.y;
+        }
+        function dragged(event, d) {
+          d.fx = event.x; d.fy = event.y;
+        }
+        function dragended(event, d) {
+          if (!event.active) sim.alphaTarget(0);
+          d.fx = null; d.fy = null;
+        }
+        return d3.drag().on('start', dragstarted).on('drag', dragged).on('end', dragended);
+      }
+
+      function applyFilter(reheat = false) {
+        node.style('display', d => d.type === 'product' && !visible.has(d.status) ? 'none' : null);
+        link.style('display', d => {
+          // hide link if product side is hidden
+          const targetVisible = !(d.target.type === 'product' && !visible.has(d.target.status));
+          return targetVisible ? null : 'none';
+        });
+        if (reheat) {
+          // mild reheat to settle new layout
+          const sim = d3.forceSimulation(nodes)
+            .force('link', d3.forceLink(links).id(d => d.id).distance(d => d.type === 'lab' ? 80 : 40).strength(0.12))
+            .force('charge', d3.forceManyBody().strength(-40))
+            .force('center', d3.forceCenter(width / 2, height / 2))
+            .force('collide', d3.forceCollide().radius(d => d.type === 'lab' ? 28 : 10))
+            .alpha(0.5).alphaDecay(0.08);
+          sim.on('tick', () => {
+            link
+              .attr('x1', d => d.source.x)
+              .attr('y1', d => d.source.y)
+              .attr('x2', d => d.target.x)
+              .attr('y2', d => d.target.y);
+            node.attr('transform', d => `translate(${d.x},${d.y})`);
+          }).on('end', () => sim.stop());
+        }
+      }
+    }
+
+    function updateMeta(meta) {
+      qs('#generatedAt').textContent = fmtDate(meta.generated_at);
+      lastUpdatedEl.textContent = `Updated ${fmtDate(meta.generated_at)}`;
+      limitInput.value = meta.limit_products || 200;
+      // Download JSON
+      const url = new URL(dataUrl, window.location.origin);
+      url.searchParams.set('limit_products', String(limitInput.value));
+      downloadJson.href = url.toString();
+    }
+
+    // Main load
+    async function load() {
+      try {
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = 'Refreshing…';
+        const data = await fetchData(limitInput.value);
+        window._lastData = data;
+        const palette = Object.assign({
+          available: getComputedStyle(root).getPropertyValue('--status-available').trim(),
+          pending: getComputedStyle(root).getPropertyValue('--status-pending').trim(),
+          in_loan: getComputedStyle(root).getPropertyValue('--status-in_loan').trim(),
+          returned: getComputedStyle(root).getPropertyValue('--status-returned').trim(),
+        }, data.graph?.status_palette || {});
+        window._statusPalette = palette;
+        setStatusCSSVars(palette);
+
+        renderKPIs(data.summary);
+        buildLegend(palette);
+        renderCharts(data, palette);
+        renderTables(data);
+        renderGraph(data.graph, palette);
+        updateMeta(data.meta);
+      } catch (e) {
+        console.error(e);
+        alert('Failed to load dashboard data.');
+      } finally {
+        refreshBtn.disabled = false;
+        refreshBtn.textContent = 'Refresh';
+      }
+    }
+
+    // Events
+    refreshBtn.addEventListener('click', () => load());
+    limitInput.addEventListener('change', () => {
+      const v = Math.min(2000, Math.max(50, Number(limitInput.value) || 200));
+      limitInput.value = v;
+      load();
+    });
+
+    // Initial load
+    load();
+  </script>
+</body>
+</html>
