@@ -1,4 +1,10 @@
-from app.models import *
+from app.models import *    
+from datetime import timedelta
+from django.shortcuts import render
+from django.urls import reverse
+from django.http import JsonResponse
+from django.db.models import Count, Q
+from django.db.models.functions import TruncDate
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from .models import User
@@ -183,7 +189,6 @@ def load_request(request, product_id):
         admin_emails = ['haquemahmudul500@gmail.com']
         user_email = request.user.email
 
-        # Prepare detailed context for emails
         email_context = {
             'product': {
                 'name': product.name,
@@ -215,13 +220,12 @@ def load_request(request, product_id):
             }
         }
 
-        # Admin email
         admin_html = render_to_string('emails/admin_email.html', email_context)
 
-        # User email
+       
         user_html = render_to_string('emails/user_email.html', email_context)
 
-        # Send emails in background threads
+  
         threading.Thread(target=send_email, args=(f"New Loan Request: {product.name}", admin_html, admin_emails, from_email)).start()
         threading.Thread(target=send_email, args=(f"Your Loan Request Submitted: {product.name}", user_html, [user_email], from_email)).start()
 
@@ -384,7 +388,6 @@ def your_loan(request):
             messages.warning(request, "This loan has already been returned.")
             return redirect("your_loan")
 
-        # Loan return process
         loan_request.return_status = True
         loan_request.return_date = timezone.now().date()
 
@@ -450,7 +453,7 @@ def lab_to_lab_transfer(request):
 
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'password_reset.html'
-    email_template_name = 'registration/password_reset_email.txt'   # plain text fallback
+    email_template_name = 'registration/password_reset_email.txt'   
     subject_template_name = 'registration/password_reset_subject.txt'
     html_email_template_name = 'registration/password_reset_email.html'
     
@@ -464,8 +467,8 @@ class ResendPasswordResetView(PasswordResetDoneView):
                 form.save(
                     request=request,
                     use_https=request.is_secure(),
-                    email_template_name="registration/password_reset_email.txt",  # fallback
-                    html_email_template_name="registration/password_reset_email.html",  # ✅ main HTML
+                    email_template_name="registration/password_reset_email.txt",   
+                    html_email_template_name="registration/password_reset_email.html",  
                     subject_template_name="registration/password_reset_subject.txt",
                 )
                 messages.success(request, "We’ve resent the password reset email.")
@@ -478,10 +481,10 @@ class ResendPasswordResetView(PasswordResetDoneView):
         return redirect("password_reset_done")
 
 def export_loans(request):
-    # Fetch loan requests from the database
+   
     loans = LoanRequest.objects.select_related('product', 'requested_by').all()
 
-    # Prepare data for the Excel file
+
     data = []
     for loan in loans:
         data.append({
@@ -494,10 +497,10 @@ def export_loans(request):
             'Rejection Reason': loan.rejection_reason if loan.status == 'rejected' else 'N/A',
         })
 
-    # Create a DataFrame using pandas
+   
     df = pd.DataFrame(data)
 
-    # Generate the Excel file
+
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="loan_requests.xlsx"'
     with pd.ExcelWriter(response, engine='openpyxl') as writer:
@@ -506,10 +509,10 @@ def export_loans(request):
     return response
 
 def export_approved_loans(request):
-    # Fetch approved loan requests
+   
     loans = LoanRequest.objects.filter(status='approved').select_related('product', 'requested_by')
 
-    # Prepare data for the Excel file
+  
     data = []
     for loan in loans:
         data.append({
@@ -521,10 +524,10 @@ def export_approved_loans(request):
             'Status': loan.status,
         })
 
-    # Create a DataFrame using pandas
+ 
     df = pd.DataFrame(data)
 
-    # Generate the Excel file
+  
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="approved_loans.xlsx"'
     with pd.ExcelWriter(response, engine='openpyxl') as writer:
@@ -534,10 +537,10 @@ def export_approved_loans(request):
 
 
 def export_rejected_loans(request):
-    # Fetch rejected loan requests
+
     loans = LoanRequest.objects.filter(status='rejected').select_related('product', 'requested_by')
 
-    # Prepare data for the Excel file
+
     data = []
     for loan in loans:
         data.append({
@@ -549,10 +552,10 @@ def export_rejected_loans(request):
             'Status': loan.status,
         })
 
-    # Create a DataFrame using pandas
+   
     df = pd.DataFrame(data)
 
-    # Generate the Excel file
+   
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="rejected_loans.xlsx"'
     with pd.ExcelWriter(response, engine='openpyxl') as writer:
@@ -561,15 +564,14 @@ def export_rejected_loans(request):
     return response
 
 def export_transfers(request):
-    # Create the HttpResponse object with the appropriate CSV header.
+    
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="transfers.csv"'
 
     writer = csv.writer(response)
-    # Write the header row
+
     writer.writerow(['Product', 'From Lab', 'To Lab', 'Quantity', 'Transferred By', 'Transferred At', 'Return Status'])
 
-    # Write data rows
     for transfer in ProductTransfer.objects.all():
         writer.writerow([
             transfer.product.name,
@@ -591,14 +593,6 @@ class MyPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     template_name = 'password_change/password_change.html'
     success_url = reverse_lazy('password_change_done')
     
-    
-from datetime import timedelta
-from django.shortcuts import render
-from django.urls import reverse
-from django.http import JsonResponse
-from django.db.models import Count, Q
-from django.db.models.functions import TruncDate
-from django.utils import timezone
 
 from .models import Lab, Product, Category, LoanRequest, ProductTransfer, User
 
@@ -610,16 +604,13 @@ def dashboard_view(request):
 
 
 def dashboard_data_view(request):
-    """
-    JSON data used by dashboard.html for all charts/graphs/tables.
-    Supports ?limit_products=<int> to cap the D3 graph size.
-    """
+
     limit_products = max(50, min(int(request.GET.get("limit_products", 200)), 2000))
 
     now = timezone.now()
-    start_date = (now - timedelta(days=29)).date()  # last 30 days inclusive
+    start_date = (now - timedelta(days=29)).date()  
 
-    # Aggregates
+
     total_products = Product.objects.count()
     total_labs = Lab.objects.count()
     total_categories = Category.objects.count()
@@ -631,7 +622,7 @@ def dashboard_data_view(request):
     students_count = User.objects.filter(is_student=True).count()
     hods_count = User.objects.filter(is_hod=True).count()
 
-    # Labs with counts
+
     labs_qs = Lab.objects.annotate(
         product_count=Count('products', distinct=True),
         transfers_in_count=Count('transfers_in', distinct=True),
@@ -659,23 +650,22 @@ def dashboard_data_view(request):
         for lab in labs_qs
     ]
 
-    # Categories with counts
+
     categories_qs = Category.objects.annotate(
-        product_count=Count('product', distinct=True)  # reverse relation 'product'
+        product_count=Count('product', distinct=True)  
     ).order_by('name')
     categories = [
         {"id": c.id, "name": c.name, "product_count": c.product_count}
         for c in categories_qs
     ]
 
-    # Product status counts (global)
     status_choices = [code for code, _ in Product.STATUS_CHOICES]
     status_counts_qs = Product.objects.values('status').annotate(count=Count('id'))
     product_status_counts = {code: 0 for code in status_choices}
     for row in status_counts_qs:
         product_status_counts[row['status']] = row['count']
 
-    # Timeseries: Loans (stacked by status) over last 30 days
+
     loans_daily = LoanRequest.objects.filter(request_date__date__gte=start_date)\
         .annotate(day=TruncDate('request_date'))\
         .values('day', 'status')\
@@ -696,7 +686,7 @@ def dashboard_data_view(request):
         "rejected": [daily_map[d]["rejected"] for d in day_labels],
     }
 
-    # Timeseries: Transfers (per day)
+  
     transfers_daily = ProductTransfer.objects.filter(transferred_at__date__gte=start_date)\
         .annotate(day=TruncDate('transferred_at'))\
         .values('day')\
@@ -713,7 +703,7 @@ def dashboard_data_view(request):
         "counts": [transfers_map[d] for d in day_labels]
     }
 
-    # Recent activity
+   
     recent_loans_qs = LoanRequest.objects.select_related(
         'product', 'requested_by', 'for_student', 'approved_by'
     ).order_by('-request_date')[:10]
@@ -749,14 +739,13 @@ def dashboard_data_view(request):
             "transferred_at": timezone.localtime(t.transferred_at).isoformat() if t.transferred_at else None,
         })
 
-    # D3 Graph: labs + a capped set of products
+   
     products_for_graph_qs = Product.objects.select_related('lab', 'category')\
         .order_by('-id')[:limit_products]
 
     graph_nodes = []
     graph_links = []
 
-    # labs as nodes
     for lab in labs_qs:
         graph_nodes.append({
             "id": f"lab-{lab.id}",
@@ -765,7 +754,6 @@ def dashboard_data_view(request):
             "size": max(10, min(40, 10 + lab.product_count // 2)),
         })
 
-    # products as nodes + links
     for p in products_for_graph_qs:
         graph_nodes.append({
             "id": f"prod-{p.id}",
